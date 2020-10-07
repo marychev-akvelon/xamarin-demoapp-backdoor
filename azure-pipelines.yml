@@ -67,7 +67,7 @@ jobs:
       # jarsignerKeystorePassword: '$(keystorePassword)'
       # jarsignerKeystoreAlias: 'dvmapp-keystore'
       # jarsignerKeyPassword: '$(keyPassword)'      
-      zipalign: true
+      # zipalign: true
   
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact drop-android'
@@ -90,16 +90,16 @@ jobs:
       script: |
         ls -Rhal '$(build.sourcesdirectory)/tools'
 
-  - task: AppCenterDistribute@3
-    displayName: 'distribute android to app center'
-    inputs:
-      serverEndpoint: 'AppCenterUser'
-      appSlug: 'v-mimary-microsoft.com/xam-android-backdoor/'
-      appFile: '$(build.binariesDirectory)/$(buildConfiguration)/*.apk'
-      symbolsOption: 'Android'
-      releaseNotesOption: 'input'
-      releaseNotesInput: 'These are my release notes'
-      destinationType: 'groups' 
+  # - task: AppCenterDistribute@3
+  #   displayName: 'distribute android to app center'
+  #   inputs:
+  #     serverEndpoint: 'AppCenterUser'
+  #     appSlug: 'v-mimary-microsoft.com/xam-android-backdoor/'
+  #     appFile: '$(build.binariesDirectory)/$(buildConfiguration)/*.apk'
+  #     symbolsOption: 'Android'
+  #     releaseNotesOption: 'input'
+  #     releaseNotesInput: 'These are my release notes'
+  #     destinationType: 'groups' 
   
   # because the windows-latest is using node v12.13.0, cli use 10.x
   - task: UseNode@1
@@ -121,11 +121,10 @@ jobs:
       uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
       uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
       credentialsOption: 'serviceEndpoint'
-      serverEndpoint: 'AppCenterUser'
+      serverEndpoint: 'App Center Token'
       appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
       devices: 'v-mimary-microsoft.com/sony-tablets'
       localeOption: 'en_US'
-      #runOptions: '--test-parameter "app_env=RUNNING_IN_APP_CENTER=1" --test-parameter "app_env=OWEN_TEST=1"'
       skipWaitingForResults: true
     condition: succeededOrFailed()
 
@@ -336,7 +335,7 @@ jobs:
     displayName: ".net restore solution"
     inputs:
       command: 'restore'
-      projects: '**/DvmApp.sln'
+      projects: '**/backdoor.sln'
       feedsToUse: 'select'
       vstsFeed: 'e0c3e74c-313a-4fb4-9bc5-87051d76806d'
   # - task: DotNetCoreCLI@2
@@ -350,7 +349,7 @@ jobs:
   - task: MSBuild@1
     displayName: "msbuild uwp"
     inputs:      
-      solution: "**/DvmApp.UWP.csproj"
+      solution: "**/backdoor.UWP.csproj"
       configuration: '$(buildConfiguration)'      
       logFileVerbosity: diagnostic
       platform: '$(buildPlatform)'      
@@ -389,14 +388,14 @@ jobs:
   - task: NuGetCommand@2
     displayName: "nuget restore solution"
     inputs:
-      restoreSolution: '**/DvmApp.sln'
+      restoreSolution: '**/backdoor.sln'
       vstsFeed: 'MasterFeed'  
 
   - task: DotNetCoreCLI@2
     displayName: ".net restore solution"
     inputs:
       command: 'restore'
-      projects: '**/DvmApp.sln'
+      projects: '**/backdoor.sln'
       feedsToUse: 'select'
       vstsFeed: 'e0c3e74c-313a-4fb4-9bc5-87051d76806d'
   # - task: DotNetCoreCLI@2
@@ -410,7 +409,7 @@ jobs:
   - task: MSBuild@1
     displayName: "msbuild uwp"
     inputs:      
-      solution: "**/DvmApp.UWP.csproj"
+      solution: "**/backdoor.UWP.csproj"
       configuration: '$(buildConfiguration)'      
       logFileVerbosity: diagnostic
       platform: '$(buildPlatform)'      
@@ -449,14 +448,14 @@ jobs:
   - task: NuGetCommand@2
     displayName: "nuget restore solution"
     inputs:
-      restoreSolution: '**/DvmApp.sln'
+      restoreSolution: '**/backdoor.sln'
       vstsFeed: 'MasterFeed'  
 
   - task: DotNetCoreCLI@2
     displayName: ".net restore solution"
     inputs:
       command: 'restore'
-      projects: '**/DvmApp.sln'
+      projects: '**/backdoor.sln'
       feedsToUse: 'select'
       vstsFeed: 'e0c3e74c-313a-4fb4-9bc5-87051d76806d'
   # - task: DotNetCoreCLI@2
@@ -470,7 +469,7 @@ jobs:
   - task: MSBuild@1
     displayName: "msbuild uwp"
     inputs:      
-      solution: "**/DvmApp.UWP.csproj"
+      solution: "**/backdoor.UWP.csproj"
       configuration: '$(buildConfiguration)'      
       logFileVerbosity: diagnostic
       platform: '$(buildPlatform)'      
@@ -509,14 +508,14 @@ jobs:
   - task: NuGetCommand@2
     displayName: "nuget restore solution"
     inputs:
-      restoreSolution: '**/DvmApp.sln'
+      restoreSolution: '**/backdoor.sln'
       vstsFeed: 'MasterFeed'  
 
   - task: DotNetCoreCLI@2
     displayName: ".net restore solution"
     inputs:
       command: 'restore'
-      projects: '**/DvmApp.sln'
+      projects: '**/backdoor.sln'
       feedsToUse: 'select'
       vstsFeed: 'e0c3e74c-313a-4fb4-9bc5-87051d76806d'
   # - task: DotNetCoreCLI@2
@@ -530,7 +529,7 @@ jobs:
   - task: MSBuild@1
     displayName: "msbuild uwp"
     inputs:      
-      solution: "**/DvmApp.UWP.csproj"
+      solution: "**/backdoor.UWP.csproj"
       configuration: '$(buildConfiguration)'      
       logFileVerbosity: diagnostic
       platform: '$(buildPlatform)'      
