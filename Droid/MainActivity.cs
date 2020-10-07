@@ -19,7 +19,7 @@ namespace backdoor.Droid
         {
             base.OnCreate (bundle);
 
-            // "ccf240b2-e6e3-4f59-b3fb-706bb7fa66ed", typeof(Analytics), typeof(Crashes));
+            // "ccf240b2-e6e3-4f59-b3fb-706bb7fa66ed"
 
             global::Xamarin.Forms.Forms.Init (this, bundle);
 
