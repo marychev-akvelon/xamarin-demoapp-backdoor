@@ -9,10 +9,6 @@ using Android.Widget;
 using Android.OS;
 using Java.Interop;
 
-// using Microsoft.AppCenter;
-// using Microsoft.AppCenter.Analytics;
-// using Microsoft.AppCenter.Crashes;
-
 
 namespace backdoor.Droid
 {
@@ -23,7 +19,7 @@ namespace backdoor.Droid
         {
             base.OnCreate (bundle);
 
-            // AppCenter.Start("ccf240b2-e6e3-4f59-b3fb-706bb7fa66ed", typeof(Analytics), typeof(Crashes));
+            // "ccf240b2-e6e3-4f59-b3fb-706bb7fa66ed", typeof(Analytics), typeof(Crashes));
 
             global::Xamarin.Forms.Forms.Init (this, bundle);
 
