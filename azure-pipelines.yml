@@ -1,0 +1,544 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+  
+jobs:
+ 
+- job: Android
+  displayName: "job android"
+  pool:
+    name: Hosted Windows 2019 with VS2019
+  variables:
+    buildConfiguration: 'Release'
+    buildPlatform: 'AnyCPU'    
+    major: 10
+    minor: 0
+
+  steps:
+
+  - task: NuGetToolInstaller@1
+    displayName: 'Install nuget'
+    inputs:
+      versionSpec: '5.3.0'
+
+  - task: NuGetCommand@2
+    displayName: "nuget restore solution"
+    inputs:
+      restoreSolution: '**/backdoor.sln'
+      vstsFeed: 'MasterFeed'
+
+  # - task: android-manifest-version@1
+  #   inputs:
+  #     sourcePath: '$(Build.SourcesDirectory)/DvmApp.Android/Properties/AndroidManifest.xml'
+  #     versionCodeOption: 'buildid'
+  #     versionCode: '$(Build.BuildId)'
+  # #   versionName: '$(major).$(minor).$(Build.BuildId)'
+  #     versionName: '$(major).$(minor)'
+  #     printFile: true      
+  
+  - task: XamarinAndroid@1
+    displayName: "build android"
+    inputs:
+      projectFile: '**/backdoor.Droid.csproj'
+      outputDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)'
+      #outputDirectory: '$(outputDirectory)'
+      configuration: '$(buildConfiguration)'    
+      msbuildArchitectureOption: x64
+      jdkOption: 'JDKVersion'
+      
+  # let's build all the tests so we can run them in AppCenter
+  - task: MSBuild@1
+    displayName: 'Build all **/*Tests.csproj files'
+    inputs:      
+      solution: "**/*Tests.csproj"
+      configuration: '$(buildConfiguration)'
+      msbuildArguments: '/p:OutputPath="$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly"'
+
+  - task: AndroidSigning@2
+    displayName: "align and sign"  
+    inputs:
+      apkFiles: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'    
+      # jarsign: true    
+      # jarsignerKeystoreFile: 'dvmapp-keystore.keystore'
+      # jarsignerKeystorePassword: '$(keystorePassword)'
+      # jarsignerKeystoreAlias: 'dvmapp-keystore'
+      # jarsignerKeyPassword: '$(keyPassword)'      
+      zipalign: true
+  
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact drop-android'
+    inputs:
+      PathtoPublish: '$(build.binariesdirectory)/$(BuildConfiguration)'
+      ArtifactName: 'drop-android'      
+
+  - task: CopyFiles@2
+    displayName: 'copy the tools folder because wild cards seem to fail on the tools'
+    inputs:
+      Contents: '**/Xamarin.UITest.*/**'
+      SourceFolder: '$(build.sourcesdirectory)/packages'
+      TargetFolder: '$(build.sourcesdirectory)/tools'
+      flattenFolders: true
+
+  - task: Bash@3
+    displayName: "list tools directory"
+    inputs: 
+      targetType: inline
+      script: |
+        ls -Rhal '$(build.sourcesdirectory)/tools'
+
+  - task: AppCenterDistribute@3
+    displayName: 'distribute android to app center'
+    inputs:
+      serverEndpoint: 'AppCenterUser'
+      appSlug: 'v-mimary-microsoft.com/xam-android-backdoor/'
+      appFile: '$(build.binariesDirectory)/$(buildConfiguration)/*.apk'
+      symbolsOption: 'Android'
+      releaseNotesOption: 'input'
+      releaseNotesInput: 'These are my release notes'
+      destinationType: 'groups' 
+  
+  # because the windows-latest is using node v12.13.0, cli use 10.x
+  - task: UseNode@1
+    inputs:
+      version: '10.15.1'
+  
+  - task: Bash@3
+    displayName: "display environment variables"
+    inputs:
+      targetType: 'inline'
+      script: "set"
+  
+  - task: AppCenterTest@1
+    displayName: 'Test with Visual Studio App Center'
+    inputs:
+      appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
+      artifactsDirectory: '$(Build.ArtifactStagingDirectory)/AppCenterTest'
+      frameworkOption: 'uitest'
+      uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
+      uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
+      credentialsOption: 'serviceEndpoint'
+      serverEndpoint: 'AppCenterUser'
+      appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
+      devices: 'v-mimary-microsoft.com/sony-tablets'
+      localeOption: 'en_US'
+      #runOptions: '--test-parameter "app_env=RUNNING_IN_APP_CENTER=1" --test-parameter "app_env=OWEN_TEST=1"'
+      skipWaitingForResults: true
+    condition: succeededOrFailed()
+
+  
+  
+###############################################################################################################
+
+# - job: UITests
+#   displayName: 'build UI Tests'
+#   condition: eq(1,2)
+  
+#   # dependsOn: 
+#   # - Android  
+#   # condition: succeeded('Android')
+#   # # - iOS
+#   # # condition: and(succeeded('Android'), succeeded('iOS'))
+
+#   pool:
+#     name: Hosted Windows 2019 with VS2019
+
+#   variables:
+#     buildConfiguration: 'Release'
+#     buildPlatform: 'AnyCPU'    
+#     testAssemblyDirectory: '$(build.binariesdirectory)/$(buildConfiguration)'
+#     major: 10
+#     minor: 0
+
+#   steps:
+
+#   - task: NuGetToolInstaller@1
+#     displayName: 'Install nuget'
+#     inputs:
+#       versionSpec: '5.3.0'
+
+#   - task: NuGetCommand@2
+#     displayName: "nuget restore solution"
+#     inputs:
+#       restoreSolution: '**/DvmApp.sln'
+#       vstsFeed: 'MasterFeed'  
+      
+#   - task: MSBuild@1
+#     displayName: "build UI tests"
+#     inputs:
+#       solution: '**/DvmApp.UITests.csproj'
+#       platform: '$(buildPlatform)'
+#       configuration: '$(buildConfiguration)'
+#       #msbuildArguments: '/p:OutputPath=$(Build.BinariesDirectory)'
+
+#   - task: Bash@3
+#     displayName: "list files"
+#     inputs:
+#       targetType: 'inline'
+#       script: |          
+#         echo "***************** b directory = $(build.binariesDirectory) ******************"
+#         echo "***************** s directory = $(build.sourcesDirectory) ******************"
+#         echo "***************** a directory = $(build.ArtifactStagingDirectory) ******************"
+#         echo "***************** working directory = $(System.DefaultWorkingDirectory)"
+#         echo "***************** output directory = $(outputDirectory)"
+#         src = "$(build.binariesDirectory)"\*
+#         ls -Rhal $(src)
+  
+#   - task: AppCenterTest@1
+#     inputs:
+#       appFile: '$(outputDirectory)/*.apk'
+#       artifactsDirectory: '$(Build.ArtifactStagingDirectory)/AppCenterTest'
+#       frameworkOption: 'uitest'
+#       uiTestBuildDirectory: '$(testAssemblyDirectory)'
+#       credentialsOption: 'serviceEndpoint'
+#       serverEndpoint: 'AppCenterUser'
+#       appSlug: 'American-Innovations/dvmapp-android'
+#       devices: 'American-Innovations/ai-tablets'
+#       localeOption: 'en_US'
+  
+###############################################################################################################
+
+# - job: iOS
+#   displayName: 'job iOS'
+#   condition: eq(1,2) #temporarily disable job  
+  
+#   pool:
+#     vmImage: 'macos-latest'
+
+#   variables:
+#     buildConfiguration: 'Release'
+#     xamarinSDK: 12_8_0_2
+#     mono: 5_18_1
+
+#   steps:
+
+#   - task: Bash@3
+#     displayName: "Set xamarinSDK to version $(mono)"
+#     inputs:
+#       targetType: 'inline'
+#       script: /bin/bash -c "sudo $AGENT_HOMEDIRECTORY/scripts/select-xamarin-sdk.sh $(mono)"
+
+#   - task: Bash@3
+#     displayName: "display environment variables"
+#     inputs:
+#       targetType: 'inline'
+#       script: "set"
+
+#   - task: Bash@3
+#     displayName: "cat info.plist"
+#     inputs:
+#       targetType: 'inline'
+#       script: 'cat "$(Build.SourcesDirectory)/DvmApp.iOS/Info.plist" '
+
+#   - task: Bash@3
+#     displayName: "update info.plist"
+#     inputs:
+#       targetType: 'inline'
+#       script: '
+#       perl -0777 -i.bak -pe "s|<key>CFBundleVersion</key>\\s*<string>[\d+\.\d+]*</string>|<key>CFBundleVersion</key>\r<string>$(Build.BuildId)</string>|" "$(Build.SourcesDirectory)/DvmApp.iOS/Info.plist"'
+
+#   - task: Bash@3
+#     displayName: "cat info.plist"
+#     inputs:
+#       targetType: 'inline'
+#       script: 'cat "$(Build.SourcesDirectory)/DvmApp.iOS/Info.plist"'
+#       #script: 'find ~/$(BUILD_SOURCESDIRECTORY)/ -type f' 
+
+      
+
+#   - task: NuGetToolInstaller@1
+#     displayName: 'Install nuget'
+#     inputs:
+#       versionSpec: '5.3.0'
+  
+#   - task: InstallAppleCertificate@2
+#     name: "appc"
+#     displayName: "Install Apple Certificate"
+#     inputs:
+#       certSecureFile: 'Certificate.p12'
+#       certPwd: '$(applePwd)'  
+
+#   - task: InstallAppleProvisioningProfile@1
+#     displayName: "install apple provisioning profile"
+#     inputs:
+#       provisioningProfileLocation: 'secureFiles' # Options: secureFiles, sourceRepository
+#       provProfileSecureFile: 'bat-tools.mobileprovision' # Required when provisioningProfileLocation == SecureFiles
+#       #provProfileSourceRepository: # Required when provisioningProfileLocation == SourceRepository
+#       #removeProfile: true # Optional
+  
+#   - task: NuGetCommand@2
+#     displayName: "nuget restore solution"
+#     inputs:
+#       restoreSolution: '**/DvmApp.sln'
+#       vstsFeed: 'MasterFeed'
+
+#   - task: XamariniOS@2
+#     displayName: 'build ios'
+#     inputs:
+#       solutionFile: '**/DvmApp.iOS.csproj'
+#       configuration: 'AppStore'
+#       packageApp: true
+#       buildForSimulator: false
+#       runNugetRestore: true
+#       clean: true
+#       #args: '/p:ArchiveOnBuild=true /t:"Build"'
+#       signingIdentity: '$(APPLE_CERTIFICATE_SIGNING_IDENTITY)'
+#       signingProvisioningProfileID: '$(APPLE_PROV_PROFILE_UUID)'      
+
+      
+#   - task: CopyFiles@2
+#     displayName: "copy ipa file"
+#     inputs:
+#       Contents: '**/*.ipa'
+#       SourceFolder: '$(Build.SourcesDirectory)/Dvm.iOS/bin/iPhone/AppStore'
+#       TargetFolder: '$(Build.ArtifactStagingDirectory)'      
+
+#   - task: PublishBuildArtifacts@1
+#     displayName: "publish artifacts"
+#     inputs:
+#       PathtoPublish: '$(build.ArtifactStagingDirectory)'
+#       ArtifactName: 'drop'
+#       publishLocation: 'Container'
+  
+########################################### x64 ######################################################
+
+- job: uwpx64
+  displayName: "job uwp x64"
+  pool:
+    vmImage: "windows-2019"
+    #name: Hosted Windows 2019 with VS2019
+  variables:
+    buildConfiguration: 'Release'
+    buildPlatform: 'x64'
+    major: 10
+    minor: 0
+
+  steps:
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: 3.1.x
+  - task: NuGetToolInstaller@1
+    displayName: 'Install nuget'
+    inputs:
+      checkLatest: true      
+
+  - task: NuGetCommand@2
+    displayName: "nuget restore solution"
+    inputs:
+      restoreSolution: '**/DvmApp.sln'
+      vstsFeed: 'MasterFeed'  
+
+  - task: DotNetCoreCLI@2
+    displayName: ".net restore solution"
+    inputs:
+      command: 'restore'
+      projects: '**/DvmApp.sln'
+      feedsToUse: 'select'
+      vstsFeed: 'e0c3e74c-313a-4fb4-9bc5-87051d76806d'
+  # - task: DotNetCoreCLI@2
+  #   displayName: ".net core build, continue on error"
+  #   inputs:
+  #     command: 'build'
+  #     projects: "**/DvmApp.UWP.csproj"
+  #     arguments: '$(buildConfiguration)'
+  #   continueOnError: true
+
+  - task: MSBuild@1
+    displayName: "msbuild uwp"
+    inputs:      
+      solution: "**/DvmApp.UWP.csproj"
+      configuration: '$(buildConfiguration)'      
+      logFileVerbosity: diagnostic
+      platform: '$(buildPlatform)'      
+      msbuildArguments: '/p:OutPutPath=$(Build.ArtifactStagingDirectory)\'
+      #clean: false            
+   
+  - task: PublishBuildArtifacts@1
+    displayName: "publish artifact"
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'uwpx64'
+
+########################################### x86 ######################################################
+
+- job: uwpx86
+  displayName: "job uwp x86"
+  pool:
+    vmImage: "windows-2019"
+    #name: Hosted Windows 2019 with VS2019
+  variables:
+    buildConfiguration: 'Release'
+    buildPlatform: 'x86'    
+    major: 10
+    minor: 0
+
+  steps:
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: 3.1.x
+  - task: NuGetToolInstaller@1
+    displayName: 'Install nuget'
+    inputs:
+      checkLatest: true      
+
+  - task: NuGetCommand@2
+    displayName: "nuget restore solution"
+    inputs:
+      restoreSolution: '**/DvmApp.sln'
+      vstsFeed: 'MasterFeed'  
+
+  - task: DotNetCoreCLI@2
+    displayName: ".net restore solution"
+    inputs:
+      command: 'restore'
+      projects: '**/DvmApp.sln'
+      feedsToUse: 'select'
+      vstsFeed: 'e0c3e74c-313a-4fb4-9bc5-87051d76806d'
+  # - task: DotNetCoreCLI@2
+  #   displayName: ".net core build, continue on error"
+  #   inputs:
+  #     command: 'build'
+  #     projects: "**/DvmApp.UWP.csproj"
+  #     arguments: '$(buildConfiguration)'
+  #   continueOnError: true
+
+  - task: MSBuild@1
+    displayName: "msbuild uwp"
+    inputs:      
+      solution: "**/DvmApp.UWP.csproj"
+      configuration: '$(buildConfiguration)'      
+      logFileVerbosity: diagnostic
+      platform: '$(buildPlatform)'      
+      msbuildArguments: '/p:OutPutPath=$(Build.ArtifactStagingDirectory)\'
+      #clean: false            
+   
+  - task: PublishBuildArtifacts@1
+    displayName: "publish artifact"
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'uwpx86'
+
+########################################### arm 64 ######################################################
+
+- job: uwparm64
+  displayName: "job uwp arm64"
+  pool:
+    vmImage: "windows-2019"
+    #name: Hosted Windows 2019 with VS2019
+  variables:
+    buildConfiguration: 'Release'
+    buildPlatform: 'ARM64'    
+    major: 10
+    minor: 0
+
+  steps:
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: 3.1.x
+  - task: NuGetToolInstaller@1
+    displayName: 'Install nuget'
+    inputs:
+      checkLatest: true      
+
+  - task: NuGetCommand@2
+    displayName: "nuget restore solution"
+    inputs:
+      restoreSolution: '**/DvmApp.sln'
+      vstsFeed: 'MasterFeed'  
+
+  - task: DotNetCoreCLI@2
+    displayName: ".net restore solution"
+    inputs:
+      command: 'restore'
+      projects: '**/DvmApp.sln'
+      feedsToUse: 'select'
+      vstsFeed: 'e0c3e74c-313a-4fb4-9bc5-87051d76806d'
+  # - task: DotNetCoreCLI@2
+  #   displayName: ".net core build, continue on error"
+  #   inputs:
+  #     command: 'build'
+  #     projects: "**/DvmApp.UWP.csproj"
+  #     arguments: '$(buildConfiguration)'
+  #   continueOnError: true
+
+  - task: MSBuild@1
+    displayName: "msbuild uwp"
+    inputs:      
+      solution: "**/DvmApp.UWP.csproj"
+      configuration: '$(buildConfiguration)'      
+      logFileVerbosity: diagnostic
+      platform: '$(buildPlatform)'      
+      msbuildArguments: '/p:OutPutPath=$(Build.ArtifactStagingDirectory)\'
+      #clean: false            
+   
+  - task: PublishBuildArtifacts@1
+    displayName: "publish artifact"
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'uwpArm64'
+
+############################################ arm #####################################################
+
+- job: uwparm
+  displayName: "job uwp arm"
+  pool:
+    vmImage: "windows-2019"
+    #name: Hosted Windows 2019 with VS2019
+  variables:
+    buildConfiguration: 'Release'
+    buildPlatform: 'ARM'    
+    major: 10
+    minor: 0
+
+  steps:
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: 3.1.x
+  - task: NuGetToolInstaller@1
+    displayName: 'Install nuget'
+    inputs:
+      checkLatest: true      
+
+  - task: NuGetCommand@2
+    displayName: "nuget restore solution"
+    inputs:
+      restoreSolution: '**/DvmApp.sln'
+      vstsFeed: 'MasterFeed'  
+
+  - task: DotNetCoreCLI@2
+    displayName: ".net restore solution"
+    inputs:
+      command: 'restore'
+      projects: '**/DvmApp.sln'
+      feedsToUse: 'select'
+      vstsFeed: 'e0c3e74c-313a-4fb4-9bc5-87051d76806d'
+  # - task: DotNetCoreCLI@2
+  #   displayName: ".net core build, continue on error"
+  #   inputs:
+  #     command: 'build'
+  #     projects: "**/DvmApp.UWP.csproj"
+  #     arguments: '$(buildConfiguration)'
+  #   continueOnError: true
+
+  - task: MSBuild@1
+    displayName: "msbuild uwp"
+    inputs:      
+      solution: "**/DvmApp.UWP.csproj"
+      configuration: '$(buildConfiguration)'      
+      logFileVerbosity: diagnostic
+      platform: '$(buildPlatform)'      
+      msbuildArguments: '/p:OutPutPath=$(Build.ArtifactStagingDirectory)\'
+      #clean: false            
+   
+  - task: PublishBuildArtifacts@1
+    displayName: "publish artifact"
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'uwpArm'
