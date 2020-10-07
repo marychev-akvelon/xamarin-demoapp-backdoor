@@ -112,7 +112,7 @@ jobs:
       uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
       credentialsOption: 'serviceEndpoint'
       serverEndpoint: 'App Center Token'
-      appSlug: 'v-mimary/xam-android-backdoor/'
+      appSlug: 'v-mimary/xam-android-backdoor'
       devices: 'v-mimary/sony-tablets'
       localeOption: 'en_US'
       skipWaitingForResults: true
