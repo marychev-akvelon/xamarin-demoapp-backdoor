@@ -110,10 +110,11 @@ jobs:
       frameworkOption: 'uitest'
       uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
       uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
-      credentialsOption: 'serviceEndpoint'
-      serverEndpoint: 'App Center Token'
-      appSlug: 'Mikhail Marychev/xam-android-backdoor'
-      devices: 'Mikhail Marychev/sony-tablets'
+      credentialsOption: 'inputs'
+      username: 'v-mimary-microsoft.com'
+      password: 'PjkmlfUthlf888'
+      appSlug: 'v-mimary/xam-android-backdoor'
+      devices: 'v-mimary/sony-tablets'
       localeOption: 'en_US'
       skipWaitingForResults: true
     condition: succeededOrFailed() 
