@@ -97,16 +97,6 @@ jobs:
       script: "set"
   
   - task: AppCenterTest@1
-    displayName: 'Test with Visual Studio App Center'
-    inputs:
-      appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
-      artifactsDirectory: '$(Build.ArtifactStagingDirectory)/AppCenterTest'
-      frameworkOption: 'uitest'
-      uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
-      uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
-      credentialsOption: 'serviceEndpoint'
-      serverEndpoint: ''
-  - task: AppCenterTest@1
     inputs:
       appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
       artifactsDirectory: '$(Build.ArtifactStagingDirectory)/AppCenterTest'
