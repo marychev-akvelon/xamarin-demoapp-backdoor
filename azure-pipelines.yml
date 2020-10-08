@@ -125,4 +125,5 @@ jobs:
       devices: 'v-mimary/sony-tablets'
       localeOption: 'en_US'
       skipWaitingForResults: true
+      showDebugOutput: true
   #   condition: succeededOrFailed()
