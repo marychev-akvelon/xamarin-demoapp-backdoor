@@ -106,9 +106,23 @@ jobs:
       uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
       credentialsOption: 'serviceEndpoint'
       serverEndpoint: ''
+  - task: AppCenterTest@1
+    inputs:
+      appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
+      artifactsDirectory: '$(Build.ArtifactStagingDirectory)/AppCenterTest'
+      frameworkOption: 'uitest'
+      uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
+      uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
+      credentialsOption: 'serviceEndpoint'
+      serverEndpoint: 'AppCenterTestMMC'
       appSlug: 'v-mimary/xam-android-backdoor'
       devices: 'v-mimary/sony-tablets'
       localeOption: 'en_US'
       skipWaitingForResults: true
       showDebugOutput: true
-  #   condition: succeededOrFailed()
+  #     appSlug: 'v-mimary/xam-android-backdoor'
+  #     devices: 'v-mimary/sony-tablets'
+  #     localeOption: 'en_US'
+  #     skipWaitingForResults: true
+  #     showDebugOutput: true
+  # #   condition: succeededOrFailed()
