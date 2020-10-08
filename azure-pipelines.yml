@@ -106,7 +106,7 @@ jobs:
       credentialsOption: 'serviceEndpoint'
       serverEndpoint: 'AppCenterTestMMC'
       appSlug: 'v-mimary/xam-android-backdoor'
-      devices: 'v-mimary/sony-tablets'
+      devices: 'v-mimary/sony-tablet'
       localeOption: 'en_US'
       skipWaitingForResults: true
       showDebugOutput: true
