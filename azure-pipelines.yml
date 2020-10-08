@@ -20,87 +20,87 @@ jobs:
 
   steps:
 
-  - task: NuGetToolInstaller@1
-    displayName: 'Install nuget'
-    inputs:
-      versionSpec: '5.3.0'
-
-  - task: NuGetCommand@2
-    displayName: "nuget restore solution"
-    inputs:
-      restoreSolution: '**/backdoor.sln'
-      vstsFeed: 'MasterFeed'
-
-  # - task: android-manifest-version@1
+  # - task: NuGetToolInstaller@1
+  #   displayName: 'Install nuget'
   #   inputs:
-  #     sourcePath: '$(Build.SourcesDirectory)/DvmApp.Android/Properties/AndroidManifest.xml'
-  #     versionCodeOption: 'buildid'
-  #     versionCode: '$(Build.BuildId)'
-  # #   versionName: '$(major).$(minor).$(Build.BuildId)'
-  #     versionName: '$(major).$(minor)'
-  #     printFile: true      
+  #     versionSpec: '5.3.0'
+
+  # - task: NuGetCommand@2
+  #   displayName: "nuget restore solution"
+  #   inputs:
+  #     restoreSolution: '**/backdoor.sln'
+  #     vstsFeed: 'MasterFeed'
+
+  # # - task: android-manifest-version@1
+  # #   inputs:
+  # #     sourcePath: '$(Build.SourcesDirectory)/DvmApp.Android/Properties/AndroidManifest.xml'
+  # #     versionCodeOption: 'buildid'
+  # #     versionCode: '$(Build.BuildId)'
+  # # #   versionName: '$(major).$(minor).$(Build.BuildId)'
+  # #     versionName: '$(major).$(minor)'
+  # #     printFile: true      
   
-  - task: XamarinAndroid@1
-    displayName: "build android"
-    inputs:
-      projectFile: '**/backdoor.Droid.csproj'
-      outputDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)'
-      #outputDirectory: '$(outputDirectory)'
-      configuration: '$(buildConfiguration)'    
-      msbuildArchitectureOption: x64
-      jdkOption: 'JDKVersion'
+  # - task: XamarinAndroid@1
+  #   displayName: "build android"
+  #   inputs:
+  #     projectFile: '**/backdoor.Droid.csproj'
+  #     outputDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)'
+  #     #outputDirectory: '$(outputDirectory)'
+  #     configuration: '$(buildConfiguration)'    
+  #     msbuildArchitectureOption: x64
+  #     jdkOption: 'JDKVersion'
       
-  # let's build all the tests so we can run them in AppCenter
-  - task: MSBuild@1
-    displayName: 'Build all **/*Tests.csproj files'
-    inputs:      
-      solution: "**/*Tests.csproj"
-      configuration: '$(buildConfiguration)'
-      msbuildArguments: '/p:OutputPath="$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly"'
+  # # let's build all the tests so we can run them in AppCenter
+  # - task: MSBuild@1
+  #   displayName: 'Build all **/*Tests.csproj files'
+  #   inputs:      
+  #     solution: "**/*Tests.csproj"
+  #     configuration: '$(buildConfiguration)'
+  #     msbuildArguments: '/p:OutputPath="$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly"'
 
-  - task: AndroidSigning@2
-    displayName: "align and sign"  
-    inputs:
-      apkFiles: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
-      jarsign: false
-      # jarsign: true    
-      # jarsignerKeystoreFile: 'dvmapp-keystore.keystore'
-      # jarsignerKeystorePassword: '$(keystorePassword)'
-      # jarsignerKeystoreAlias: 'dvmapp-keystore'
-      # jarsignerKeyPassword: '$(keyPassword)'      
-      # zipalign: true
+  # - task: AndroidSigning@2
+  #   displayName: "align and sign"  
+  #   inputs:
+  #     apkFiles: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
+  #     jarsign: false
+  #     # jarsign: true    
+  #     # jarsignerKeystoreFile: 'dvmapp-keystore.keystore'
+  #     # jarsignerKeystorePassword: '$(keystorePassword)'
+  #     # jarsignerKeystoreAlias: 'dvmapp-keystore'
+  #     # jarsignerKeyPassword: '$(keyPassword)'      
+  #     # zipalign: true
   
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish Artifact drop-android'
-    inputs:
-      PathtoPublish: '$(build.binariesdirectory)/$(BuildConfiguration)'
-      ArtifactName: 'drop-android'      
+  # - task: PublishBuildArtifacts@1
+  #   displayName: 'Publish Artifact drop-android'
+  #   inputs:
+  #     PathtoPublish: '$(build.binariesdirectory)/$(BuildConfiguration)'
+  #     ArtifactName: 'drop-android'      
 
-  - task: CopyFiles@2
-    displayName: 'copy the tools folder because wild cards seem to fail on the tools'
-    inputs:
-      Contents: '**/Xamarin.UITest.*/**'
-      SourceFolder: '$(build.sourcesdirectory)/packages'
-      TargetFolder: '$(build.sourcesdirectory)/tools'
-      flattenFolders: true
+  # - task: CopyFiles@2
+  #   displayName: 'copy the tools folder because wild cards seem to fail on the tools'
+  #   inputs:
+  #     Contents: '**/Xamarin.UITest.*/**'
+  #     SourceFolder: '$(build.sourcesdirectory)/packages'
+  #     TargetFolder: '$(build.sourcesdirectory)/tools'
+  #     flattenFolders: true
 
-  - task: Bash@3
-    displayName: "list tools directory"
-    inputs: 
-      targetType: inline
-      script: |
-        ls -Rhal '$(build.sourcesdirectory)/tools'
+  # - task: Bash@3
+  #   displayName: "list tools directory"
+  #   inputs: 
+  #     targetType: inline
+  #     script: |
+  #       ls -Rhal '$(build.sourcesdirectory)/tools'
   
-  # because the windows-latest is using node v12.13.0, cli use 10.x
-  - task: UseNode@1
-    inputs:
-      version: '10.15.1'
+  # # because the windows-latest is using node v12.13.0, cli use 10.x
+  # - task: UseNode@1
+  #   inputs:
+  #     version: '10.15.1'
   
-  - task: Bash@3
-    displayName: "display environment variables"
-    inputs:
-      targetType: 'inline'
-      script: "set"
+  # - task: Bash@3
+  #   displayName: "display environment variables"
+  #   inputs:
+  #     targetType: 'inline'
+  #     script: "set"
   
   - task: AppCenterTest@1
     displayName: 'Test with Visual Studio App Center'
@@ -112,8 +112,8 @@ jobs:
       uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
       credentialsOption: 'serviceEndpoint'
       serverEndpoint: 'App Center Token'
-      appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
-      devices: 'v-mimary-microsoft.com/sony-tablets'
+      appSlug: 'v-mimary/xam-android-backdoor/'
+      devices: 'v-mimary/sony-tablets'
       localeOption: 'en_US'
       skipWaitingForResults: true
     condition: succeededOrFailed() 
