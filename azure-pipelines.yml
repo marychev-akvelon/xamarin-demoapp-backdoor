@@ -121,6 +121,7 @@ jobs:
       uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
       uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
       credentialsOption: 'serviceEndpoint'
+      serverEndpoint: 'AppCenterTask'
       appSlug: 'v-mimary/xam-android-backdoor'
       devices: 'v-mimary/sony-tablets'
       localeOption: 'en_US'
