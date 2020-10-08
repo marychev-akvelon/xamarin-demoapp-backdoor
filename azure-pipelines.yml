@@ -74,7 +74,7 @@ jobs:
   #   displayName: 'Publish Artifact drop-android'
   #   inputs:
   #     PathtoPublish: '$(build.binariesdirectory)/$(BuildConfiguration)'
-  #     ArtifactName: 'drop-android'      
+  #     ArtifactName: 'drop-android'
 
   # - task: CopyFiles@2
   #   displayName: 'copy the tools folder because wild cards seem to fail on the tools'
@@ -110,8 +110,8 @@ jobs:
       frameworkOption: 'uitest'
       uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
       uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
-      credentialsOption: 'serviceEndpoint'
-      serverEndpoint: 'App Center Token'
+      # credentialsOption: 'serviceEndpoint'
+      # serverEndpoint: 'App Center Token'
       appSlug: 'v-mimary/xam-android-backdoor/'
       devices: 'v-mimary/sony-tablets'
       localeOption: 'en_US'
