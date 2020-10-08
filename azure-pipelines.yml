@@ -62,12 +62,10 @@ jobs:
     displayName: "align and sign"  
     inputs:
       apkFiles: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
-      jarsign: true    
       jarsignerKeystoreFile: 'demoapp-keystore.keystore'
       jarsignerKeystorePassword: '$(keystorePassword)'
       jarsignerKeystoreAlias: 'demoapp-keystore'
       jarsignerKeyPassword: '$(keyPassword)'
-      zipalign: true
   
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact drop-android'
@@ -117,19 +115,19 @@ jobs:
   #     skipWaitingForResults: true
   #   condition: succeededOrFailed() 
 
-  - task: AppCenterTest@1
-    displayName: 'Test with Visual Studio App Center'
-    inputs:
-      appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
-      artifactsDirectory: '$(Build.ArtifactStagingDirectory)/AppCenterTest'
-      frameworkOption: 'uitest'
-      uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
-      uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
-      credentialsOption: 'inputs'
-      username: 'v-mimary-microsoft.com'
-      password: 'PjkmlfUthlf888'
-      appSlug: 'v-mimary/xam-android-backdoor'
-      devices: 'v-mimary/sony-tablets'
-      localeOption: 'en_US'
-      skipWaitingForResults: true
-    condition: succeededOrFailed()
+  # - task: AppCenterTest@1
+  #   displayName: 'Test with Visual Studio App Center'
+  #   inputs:
+  #     appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
+  #     artifactsDirectory: '$(Build.ArtifactStagingDirectory)/AppCenterTest'
+  #     frameworkOption: 'uitest'
+  #     uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
+  #     uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
+  #     credentialsOption: 'inputs'
+  #     username: 'v-mimary-microsoft.com'
+  #     password: 'PjkmlfUthlf888'
+  #     appSlug: 'v-mimary/xam-android-backdoor'
+  #     devices: 'v-mimary/sony-tablets'
+  #     localeOption: 'en_US'
+  #     skipWaitingForResults: true
+  #   condition: succeededOrFailed()
