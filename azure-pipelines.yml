@@ -101,6 +101,22 @@ jobs:
       targetType: 'inline'
       script: "set"
   
+  # - task: AppCenterTest@1
+  #   displayName: 'Test with Visual Studio App Center'
+  #   inputs:
+  #     appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
+  #     artifactsDirectory: '$(Build.ArtifactStagingDirectory)/AppCenterTest'
+  #     frameworkOption: 'uitest'
+  #     uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
+  #     uitestStorePath: 'demoapp-keystore.keystore'
+  #     uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
+  #     credentialsOption: 'serviceEndpoint'
+  #     appSlug: 'v-mimary/xam-android-backdoor'
+  #     devices: 'v-mimary/sony-tablets'
+  #     localeOption: 'en_US'
+  #     skipWaitingForResults: true
+  #   condition: succeededOrFailed() 
+
   - task: AppCenterTest@1
     displayName: 'Test with Visual Studio App Center'
     inputs:
@@ -108,11 +124,12 @@ jobs:
       artifactsDirectory: '$(Build.ArtifactStagingDirectory)/AppCenterTest'
       frameworkOption: 'uitest'
       uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
-      uitestStorePath: 'demoapp-keystore.keystore'
       uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
       credentialsOption: 'serviceEndpoint'
+      serverEndpoint: 'AppCenterUser'
       appSlug: 'v-mimary/xam-android-backdoor'
       devices: 'v-mimary/sony-tablets'
       localeOption: 'en_US'
+      #runOptions: '--test-parameter "app_env=RUNNING_IN_APP_CENTER=1" --test-parameter "app_env=OWEN_TEST=1"'
       skipWaitingForResults: true
-    condition: succeededOrFailed() 
+    condition: succeededOrFailed()
