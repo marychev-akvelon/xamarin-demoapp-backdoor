@@ -66,7 +66,7 @@ jobs:
       jarsignerKeystoreFile: 'demoapp-keystore.keystore'
       jarsignerKeystorePassword: '$(keystorePassword)'
       jarsignerKeystoreAlias: 'demoapp-keystore'
-      jarsignerKeyPassword: '$(keyPassword)'      
+      jarsignerKeyPassword: '$(keyPassword)'
       zipalign: true
   
   - task: PublishBuildArtifacts@1
@@ -130,6 +130,5 @@ jobs:
       appSlug: 'v-mimary/xam-android-backdoor'
       devices: 'v-mimary/sony-tablets'
       localeOption: 'en_US'
-      #runOptions: '--test-parameter "app_env=RUNNING_IN_APP_CENTER=1" --test-parameter "app_env=OWEN_TEST=1"'
       skipWaitingForResults: true
     condition: succeededOrFailed()
