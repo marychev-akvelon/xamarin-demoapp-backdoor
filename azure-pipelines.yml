@@ -1,3 +1,8 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
 trigger:
 - master
   
@@ -26,58 +31,70 @@ jobs:
       restoreSolution: '**/backdoor.sln'
       vstsFeed: 'MasterFeed'
 
-  # - task: XamarinAndroid@1
-  #   displayName: "build android"
+  # - task: android-manifest-version@1
   #   inputs:
-  #     projectFile: '**/backdoor.Droid.csproj'
-  #     outputDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)'
-  #     configuration: '$(buildConfiguration)'    
-  #     msbuildArchitectureOption: x64
-  #     jdkOption: 'JDKVersion'
+  #     sourcePath: '$(Build.SourcesDirectory)/DvmApp.Android/Properties/AndroidManifest.xml'
+  #     versionCodeOption: 'buildid'
+  #     versionCode: '$(Build.BuildId)'
+  #     # versionName: '$(major).$(minor).$(Build.BuildId)'
+  #     versionName: '$(major).$(minor)'
+  #     printFile: true
+  
+  - task: XamarinAndroid@1
+    displayName: "build android"
+    inputs:
+      projectFile: '**/backdoor.Droid.csproj'
+      outputDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)'
+      #outputDirectory: '$(outputDirectory)'
+      configuration: '$(buildConfiguration)'    
+      msbuildArchitectureOption: x64
+      jdkOption: 'JDKVersion'
       
-  # - task: MSBuild@1
-  #   displayName: 'Build all **/*Tests.csproj files'
-  #   inputs:      
-  #     solution: "**/*Tests.csproj"
-  #     configuration: '$(buildConfiguration)'
-  #     msbuildArguments: '/p:OutputPath="$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly"'
+  # let's build all the tests so we can run them in AppCenter
+  - task: MSBuild@1
+    displayName: 'Build all **/*Tests.csproj files'
+    inputs:      
+      solution: "**/*Tests.csproj"
+      configuration: '$(buildConfiguration)'
+      msbuildArguments: '/p:OutputPath="$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly"'
 
-  # - task: AndroidSigning@2
-  #   displayName: "align and sign"  
-  #   inputs:
-  #     apkFiles: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
-  #     jarsign: false
+  - task: AndroidSigning@2
+    displayName: "align and sign"  
+    inputs:
+      apkFiles: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
+      jarsign: false
   
-  # - task: PublishBuildArtifacts@1
-  #   displayName: 'Publish Artifact drop-android'
-  #   inputs:
-  #     PathtoPublish: '$(build.binariesdirectory)/$(BuildConfiguration)'
-  #     ArtifactName: 'drop-android'
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact drop-android'
+    inputs:
+      PathtoPublish: '$(build.binariesdirectory)/$(BuildConfiguration)'
+      ArtifactName: 'drop-android'
 
-  # - task: CopyFiles@2
-  #   displayName: 'copy the tools folder because wild cards seem to fail on the tools'
-  #   inputs:
-  #     Contents: '**/Xamarin.UITest.*/**'
-  #     SourceFolder: '$(build.sourcesdirectory)/packages'
-  #     TargetFolder: '$(build.sourcesdirectory)/tools'
-  #     flattenFolders: true
+  - task: CopyFiles@2
+    displayName: 'copy the tools folder because wild cards seem to fail on the tools'
+    inputs:
+      Contents: '**/Xamarin.UITest.*/**'
+      SourceFolder: '$(build.sourcesdirectory)/packages'
+      TargetFolder: '$(build.sourcesdirectory)/tools'
+      flattenFolders: true
 
-  # - task: Bash@3
-  #   displayName: "list tools directory"
-  #   inputs: 
-  #     targetType: inline
-  #     script: |
-  #       ls -Rhal '$(build.sourcesdirectory)/tools'
+  - task: Bash@3
+    displayName: "list tools directory"
+    inputs: 
+      targetType: inline
+      script: |
+        ls -Rhal '$(build.sourcesdirectory)/tools'
   
-  # - task: UseNode@1
-  #   inputs:
-  #     version: '10.15.1'
+  # because the windows-latest is using node v12.13.0, cli use 10.x
+  - task: UseNode@1
+    inputs:
+      version: '10.15.1'
   
-  # - task: Bash@3
-  #   displayName: "display environment variables"
-  #   inputs:
-  #     targetType: 'inline'
-  #     script: "set"
+  - task: Bash@3
+    displayName: "display environment variables"
+    inputs:
+      targetType: 'inline'
+      script: "set"
   
   - task: AppCenterTest@1
     inputs:
@@ -86,11 +103,10 @@ jobs:
       frameworkOption: 'uitest'
       uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
       uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
-      credentialsOption: 'inputs'
-      username: 'v-mimary-microsoft.com'
-      password: 'PjkmlfUthlf81086'
-      appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
-      devices: 'v-mimary-microsoft.com/sony-tablets'
+      credentialsOption: 'serviceEndpoint'
+      serverEndpoint: 'App Center Test'
+      appSlug: 'v-mimary/xam-android-backdoor'
+      devices: 'v-mimary/gp4xl'
       localeOption: 'en_US'
       skipWaitingForResults: true
       showDebugOutput: true
