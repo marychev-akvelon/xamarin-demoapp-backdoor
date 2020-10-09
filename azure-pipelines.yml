@@ -88,8 +88,8 @@ jobs:
       uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
       credentialsOption: 'serviceEndpoint'
       serverEndpoint: 'App Center Test'
-      appSlug: 'v-mimary/xam-android-backdoor'
-      devices: 'v-mimary/gp4xl'
+      appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
+      devices: 'v-mimary-microsoft.com/sony-tablets'
       localeOption: 'en_US'
       skipWaitingForResults: true
       showDebugOutput: true
