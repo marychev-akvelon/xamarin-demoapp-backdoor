@@ -87,7 +87,7 @@ jobs:
       uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
       uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
       credentialsOption: 'serviceEndpoint'
-      serverEndpoint: 'AppCenterTestMMC'
+      serverEndpoint: 'App Center Test'
       appSlug: 'v-mimary/xam-android-backdoor'
       devices: 'v-mimary/gp4xl'
       localeOption: 'en_US'
