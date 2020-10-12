@@ -104,7 +104,7 @@ jobs:
       uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
       uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
       credentialsOption: 'serviceEndpoint'
-      serverEndpoint: 'App Center Token'
+      serverEndpoint: 'App Center - Test VSTS Distribution task - Amaterasu user'
       appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
       devices: 'v-mimary-microsoft.com/my-phone'
       localeOption: 'en_US'
