@@ -40,15 +40,15 @@ jobs:
   #     versionName: '$(major).$(minor)'
   #     printFile: true
   
-  # - task: XamarinAndroid@1
-  #   displayName: "build android"
-  #   inputs:
-  #     projectFile: '**/backdoor.Droid.csproj'
-  #     outputDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)'
-  #     #outputDirectory: '$(outputDirectory)'
-  #     configuration: '$(buildConfiguration)'    
-  #     msbuildArchitectureOption: x64
-  #     jdkOption: 'JDKVersion'
+  - task: XamarinAndroid@1
+    displayName: "build android"
+    inputs:
+      projectFile: '**/backdoor.Droid.csproj'
+      outputDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)'
+      #outputDirectory: '$(outputDirectory)'
+      configuration: '$(buildConfiguration)'    
+      msbuildArchitectureOption: x64
+      jdkOption: 'JDKVersion'
       
   # let's build all the tests so we can run them in AppCenter
   - task: MSBuild@1
@@ -58,43 +58,43 @@ jobs:
       configuration: '$(buildConfiguration)'
       msbuildArguments: '/p:OutputPath="$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly"'
 
-  # - task: AndroidSigning@2
-  #   displayName: "align and sign"  
-  #   inputs:
-  #     apkFiles: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
-  #     jarsign: false
+  - task: AndroidSigning@2
+    displayName: "align and sign"  
+    inputs:
+      apkFiles: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
+      jarsign: false
   
-  # - task: PublishBuildArtifacts@1
-  #   displayName: 'Publish Artifact drop-android'
-  #   inputs:
-  #     PathtoPublish: '$(build.binariesdirectory)/$(BuildConfiguration)'
-  #     ArtifactName: 'drop-android'
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact drop-android'
+    inputs:
+      PathtoPublish: '$(build.binariesdirectory)/$(BuildConfiguration)'
+      ArtifactName: 'drop-android'
 
-  # - task: CopyFiles@2
-  #   displayName: 'copy the tools folder because wild cards seem to fail on the tools'
-  #   inputs:
-  #     Contents: '**/Xamarin.UITest.*/**'
-  #     SourceFolder: '$(build.sourcesdirectory)/packages'
-  #     TargetFolder: '$(build.sourcesdirectory)/tools'
-  #     flattenFolders: true
+  - task: CopyFiles@2
+    displayName: 'copy the tools folder because wild cards seem to fail on the tools'
+    inputs:
+      Contents: '**/Xamarin.UITest.*/**'
+      SourceFolder: '$(build.sourcesdirectory)/packages'
+      TargetFolder: '$(build.sourcesdirectory)/tools'
+      flattenFolders: true
 
-  # - task: Bash@3
-  #   displayName: "list tools directory"
-  #   inputs: 
-  #     targetType: inline
-  #     script: |
-  #       ls -Rhal '$(build.sourcesdirectory)/tools'
+  - task: Bash@3
+    displayName: "list tools directory"
+    inputs: 
+      targetType: inline
+      script: |
+        ls -Rhal '$(build.sourcesdirectory)/tools'
   
   # because the windows-latest is using node v12.13.0, cli use 10.x
-  # - task: UseNode@1
-  #   inputs:
-  #     version: '10.15.1'
+  - task: UseNode@1
+    inputs:
+      version: '10.15.1'
   
-  # - task: Bash@3
-  #   displayName: "display environment variables"
-  #   inputs:
-  #     targetType: 'inline'
-  #     script: "set"
+  - task: Bash@3
+    displayName: "display environment variables"
+    inputs:
+      targetType: 'inline'
+      script: "set"
   
   - task: AppCenterTest@1
     inputs:
