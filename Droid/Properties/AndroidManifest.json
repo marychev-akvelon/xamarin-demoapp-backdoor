@@ -1,0 +1,15 @@
+{
+   "@versionCode": "1",
+   "@versionName": "1.0",
+   "@package": "com.appcenter.backdoor",
+   "uses-sdk": {
+      "@minSdkVersion": "21",
+      "@targetSdkVersion": "28"
+   },
+   "application": {
+      "@label": "backdoor"
+   },
+   "uses-permission": {
+      "@name": "android.permission.INTERNET"
+   }
+}
