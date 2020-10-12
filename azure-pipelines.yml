@@ -98,7 +98,7 @@ jobs:
   
   - task: AppCenterTest@1
     inputs:
-      appFile: 'drop-android/com.appcenter.backdoor.apk'
+      appFile: 'Release/com.appcenter.backdoor.apk'
       artifactsDirectory: '$(Build.ArtifactStagingDirectory)/AppCenterTest'
       frameworkOption: 'uitest'
       uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
