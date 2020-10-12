@@ -108,5 +108,5 @@ jobs:
       appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
       devices: 'v-mimary-microsoft.com/sony-tablets'
       localeOption: 'en_US'
-      skipWaitingForResults: true
+      skipWaitingForResults: false
       showDebugOutput: true
