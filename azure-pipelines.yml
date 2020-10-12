@@ -31,14 +31,14 @@ jobs:
       restoreSolution: '**/backdoor.sln'
       vstsFeed: 'MasterFeed'
 
-  # - task: android-manifest-version@1
-  #   inputs:
-  #     sourcePath: '$(Build.SourcesDirectory)/DvmApp.Android/Properties/AndroidManifest.xml'
-  #     versionCodeOption: 'buildid'
-  #     versionCode: '$(Build.BuildId)'
-  #     # versionName: '$(major).$(minor).$(Build.BuildId)'
-  #     versionName: '$(major).$(minor)'
-  #     printFile: true
+  - task: android-manifest-version@1
+    inputs:
+      sourcePath: '$(Build.SourcesDirectory)/DvmApp.Android/Properties/AndroidManifest.xml'
+      versionCodeOption: 'buildid'
+      versionCode: '$(Build.BuildId)'
+      # versionName: '$(major).$(minor).$(Build.BuildId)'
+      versionName: '$(major).$(minor)'
+      printFile: true
   
   - task: XamarinAndroid@1
     displayName: "build android"
