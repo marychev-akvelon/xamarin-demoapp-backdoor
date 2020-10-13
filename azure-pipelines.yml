@@ -1,8 +1,3 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - master
   
@@ -14,7 +9,7 @@ jobs:
     name: Hosted Windows 2019 with VS2019
   variables:
     buildConfiguration: 'Release'
-    buildPlatform: 'AnyCPU'    
+    buildPlatform: 'AnyCPU'
     major: 10
     minor: 0
 
@@ -28,9 +23,10 @@ jobs:
   - task: NuGetCommand@2
     displayName: "nuget restore solution"
     inputs:
-      restoreSolution: '**/backdoor.sln'
+      restoreSolution: '**/backdoor.sln'   # FOR YOU => '**/DvmApp.sln'
       vstsFeed: 'MasterFeed'
 
+  # TODO: THIS TASK HAS ERROR
   # - task: android-manifest-version@1
   #   inputs:
   #     sourcePath: '$(Build.SourcesDirectory)/DvmApp.Android/Properties/AndroidManifest.xml'
@@ -43,14 +39,13 @@ jobs:
   - task: XamarinAndroid@1
     displayName: "build android"
     inputs:
-      projectFile: '**/backdoor.Droid.csproj'
+      projectFile: '**/backdoor.Droid.csproj'   # FOR YOU => '**/DvmApp.Android.csproj'
       outputDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)'
-      #outputDirectory: '$(outputDirectory)'
-      configuration: '$(buildConfiguration)'    
+      configuration: '$(buildConfiguration)'
       msbuildArchitectureOption: x64
       jdkOption: 'JDKVersion'
       
-  # # let's build all the tests so we can run them in AppCenter
+  # let's build all the tests so we can run them in AppCenter
   - task: MSBuild@1
     displayName: 'Build all **/*Tests.csproj files'
     inputs:      
@@ -63,6 +58,13 @@ jobs:
     inputs:
       apkFiles: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
       jarsign: false
+      # FOR YOU
+      # jarsign: true
+      # jarsignerKeystoreFile: 'dvmapp-keystore.keystore'
+      # jarsignerKeystorePassword: '$(keystorePassword)'
+      # jarsignerKeystoreAlias: 'dvmapp-keystore'
+      # jarsignerKeyPassword: '$(keyPassword)'
+      # zipalign: true
   
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact drop-android'
@@ -84,8 +86,19 @@ jobs:
       targetType: inline
       script: |
         ls -Rhal '$(build.sourcesdirectory)/tools'
-  
-  # # because the windows-latest is using node v12.13.0, cli use 10.x
+
+  - task: AppCenterDistribute@3
+    displayName: 'distribute android to app center'
+    inputs:
+      serverEndpoint: 'AppCenterUser'
+      appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'    # FOR YOU => 
+      appFile: '$(build.binariesDirectory)/$(buildConfiguration)/*.apk'
+      symbolsOption: 'Android'
+      releaseNotesOption: 'input'
+      releaseNotesInput: 'These are my release notes'
+      destinationType: 'groups' 
+
+  # because the windows-latest is using node v12.13.0, cli use 10.x
   - task: UseNode@1
     inputs:
       version: '10.15.1'
@@ -97,6 +110,7 @@ jobs:
       script: "set"
   
   - task: AppCenterTest@1
+    displayName: 'Test with Visual Studio App Center'
     inputs:
       appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
       artifactsDirectory: '$(Build.ArtifactStagingDirectory)/AppCenterTest'
@@ -104,10 +118,10 @@ jobs:
       uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
       uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
       credentialsOption: 'serviceEndpoint'
-      serverEndpoint: 'AppCenterTestMMC'
+      serverEndpoint: 'AppCenterUser'
       appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
       devices: 'v-mimary-microsoft.com/my-phone'
       localeOption: 'en_US'
       skipWaitingForResults: true
       showDebugOutput: true
-
+    condition: succeededOrFailed()
