@@ -118,7 +118,7 @@ jobs:
       uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
       uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
       credentialsOption: 'serviceEndpoint'
-      serverEndpoint: 'serverConnection-AppAPI--token'
+      serverEndpoint: 'Fail-serviceConnection-APIToken-User'
       appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
       devices: 'v-mimary-microsoft.com/my-phone'
       localeOption: 'en_US'
