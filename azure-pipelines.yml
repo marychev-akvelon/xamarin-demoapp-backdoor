@@ -87,16 +87,16 @@ jobs:
       script: |
         ls -Rhal '$(build.sourcesdirectory)/tools'
 
-  - task: AppCenterDistribute@3
-    displayName: 'distribute android to app center'
-    inputs:
-      serverEndpoint: 'serviceConnection-APIToken-'
-      appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
-      appFile: '$(build.binariesDirectory)/$(buildConfiguration)/*.apk'
-      symbolsOption: 'Android'
-      releaseNotesOption: 'input'
-      releaseNotesInput: 'These are my release notes'
-      destinationType: 'groups'
+  # - task: AppCenterDistribute@3
+  #   displayName: 'distribute android to app center'
+  #   inputs:
+  #     serverEndpoint: 'serviceConnection-APIToken-'
+  #     appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
+  #     appFile: '$(build.binariesDirectory)/$(buildConfiguration)/*.apk'
+  #     symbolsOption: 'Android'
+  #     releaseNotesOption: 'input'
+  #     releaseNotesInput: 'These are my release notes'
+  #     destinationType: 'groups'
 
   # because the windows-latest is using node v12.13.0, cli use 10.x
   - task: UseNode@1
@@ -118,7 +118,7 @@ jobs:
       uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
       uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
       credentialsOption: 'serviceEndpoint'
-      serverEndpoint: 'serviceConnection-APIToken-'
+      serverEndpoint: 'serverConnection-AppAPI--token'
       appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
       devices: 'v-mimary-microsoft.com/my-phone'
       localeOption: 'en_US'
