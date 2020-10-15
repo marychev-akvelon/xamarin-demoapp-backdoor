@@ -47,6 +47,14 @@ steps:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'
 
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      echo '*********'
+      ls -R '$(Build.ArtifactStagingDirectory)'
+      ls -R '$(build.sourcesdirectory)'
+
 - task: CopyFiles@2
   displayName: 'copy the tools folder because wild cards seem to fail on the tools'
   inputs:
