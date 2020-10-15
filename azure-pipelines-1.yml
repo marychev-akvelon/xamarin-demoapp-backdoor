@@ -1,0 +1,28 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  buildPlatform: 'AnyCPU'
+
+steps:
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '**/backdoor.sln'
+
+- task: CopyFiles@2
+  displayName: 'copy the tools folder because wild cards seem to fail on the tools'
+  inputs:
+    Contents: '_buildOutput/**'
+    targetFolder: $(Build.ArtifactStagingDirectory)
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact drop-android'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop-mmc'
