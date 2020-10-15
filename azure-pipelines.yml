@@ -10,10 +10,9 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  solution: '**/*.sln'
-  buildPlatform: 'x86|x64|ARM'
-  buildConfiguration: 'Release'
-  appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
+  variables:
+    buildConfiguration: 'Release'
+    buildPlatform: 'AnyCPU'    
 
 steps:
 - task: NuGetToolInstaller@1
