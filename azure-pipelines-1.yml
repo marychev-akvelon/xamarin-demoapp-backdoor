@@ -66,3 +66,18 @@ steps:
   inputs:
     targetType: 'inline'
     script: "set"
+
+- task: AppCenterTest@1
+  inputs:
+    appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
+    artifactsDirectory: '$(Build.ArtifactStagingDirectory)/AppCenterTest'
+    frameworkOption: 'uitest'
+    uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
+    uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
+    credentialsOption: 'serviceEndpoint'
+    serverEndpoint: 'App Center Token'
+    appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
+    devices: 'v-mimary-microsoft.com/my-phone'
+    localeOption: 'en_US'
+    skipWaitingForResults: true
+    showDebugOutput: true
