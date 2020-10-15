@@ -15,6 +15,15 @@ steps:
   inputs:
     restoreSolution: '**/backdoor.sln'
 
+- task: AppCenterDistribute@3
+  inputs:
+    serverEndpoint: 'serviceConnection-APIToken-User'
+    appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
+    appFile: '$(build.binariesDirectory)/$(buildConfiguration)/*.apk'
+    symbolsOption: 'Android'
+    releaseNotesOption: 'input'
+    destinationType: 'groups'
+
 - task: CopyFiles@2
   displayName: 'copy the tools folder because wild cards seem to fail on the tools'
   inputs:
