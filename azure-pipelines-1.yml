@@ -1,0 +1,113 @@
+trigger:
+- master
+  
+jobs:
+ 
+- job: Android
+  displayName: "job android"
+  pool:
+    name: Hosted Windows 2019 with VS2019
+  variables:
+    buildConfiguration: 'Release'
+    buildPlatform: 'AnyCPU'
+    major: 10
+    minor: 0
+
+  steps:
+
+  - task: NuGetToolInstaller@1
+    displayName: 'Install nuget'
+    inputs:
+      versionSpec: '5.3.0'
+
+  - task: NuGetCommand@2
+    displayName: "nuget restore solution"
+    inputs:
+      restoreSolution: '**/backdoor.sln'   # FOR YOU => '**/DvmApp.sln'
+      vstsFeed: 'MasterFeed'
+
+  # NOTE: THIS CUSTOM TASK 
+  # - task: android-manifest-version@1
+  #   inputs:
+  #     sourcePath: '$(Build.SourcesDirectory)/DvmApp.Android/Properties/AndroidManifest.xml'
+  #     versionCodeOption: 'buildid'
+  #     versionCode: '$(Build.BuildId)'
+  #     # versionName: '$(major).$(minor).$(Build.BuildId)'
+  #     versionName: '$(major).$(minor)'
+  #     printFile: true
+  
+  - task: XamarinAndroid@1
+    displayName: "build android"
+    inputs:
+      projectFile: '**/backdoor.Droid.csproj'                               # FOR YOU => '**/DvmApp.Android.csproj'
+      outputDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)'
+      configuration: '$(buildConfiguration)'
+      msbuildArchitectureOption: x64
+      jdkOption: 'JDKVersion'
+      
+  # let's build all the tests so we can run them in AppCenter
+  - task: MSBuild@1
+    displayName: 'Build all **/*Tests.csproj files'
+    inputs:      
+      solution: "**/*Tests.csproj"
+      configuration: '$(buildConfiguration)'
+      msbuildArguments: '/p:OutputPath="$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly"'
+
+  - task: AndroidSigning@2
+    displayName: "align and sign"  
+    inputs:
+      # NOTE: Just for check
+      apkFiles: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
+      jarsign: false
+      # NOTE: FOR YOU
+      # jarsign: true
+      # jarsignerKeystoreFile: 'dvmapp-keystore.keystore'
+      # jarsignerKeystorePassword: '$(keystorePassword)'
+      # jarsignerKeystoreAlias: 'dvmapp-keystore'
+      # jarsignerKeyPassword: '$(keyPassword)'
+      # zipalign: true
+  
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact drop-android'
+    inputs:
+      PathtoPublish: '$(build.binariesdirectory)/$(BuildConfiguration)'
+      ArtifactName: 'drop-android'
+
+  - task: AppCenterDistribute@3
+    displayName: 'distribute android to app center'
+    inputs:
+      serverEndpoint: 'serviceConnection-APIToken-User'
+      appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
+      appFile: '$(build.binariesDirectory)/$(buildConfiguration)/*.apk'
+      symbolsOption: 'Android'
+      releaseNotesOption: 'input'
+      releaseNotesInput: 'These are my release notes'
+      destinationType: 'groups'
+
+  # because the windows-latest is using node v12.13.0, cli use 10.x
+  - task: UseNode@1
+    inputs:
+      version: '10.15.1'
+  
+  - task: Bash@3
+    displayName: "display environment variables"
+    inputs:
+      targetType: 'inline'
+      script: "set"
+  
+  #- task: AppCenterTest@1
+  #  displayName: 'Test with Visual Studio App Center'
+  #  inputs:
+  #    appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
+  #    artifactsDirectory: '$(Build.ArtifactStagingDirectory)/AppCenterTest'
+  #    frameworkOption: 'uitest'
+  #    uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
+  #    uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
+  #    credentialsOption: 'serviceEndpoint'
+  #    serverEndpoint: 'serviceConnection-APIToken-User'
+  #    appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
+  #    devices: 'v-mimary-microsoft.com/my-phone'
+  #    localeOption: 'en_US'
+  #    skipWaitingForResults: true
+  #    showDebugOutput: true
+  #  condition: succeededOrFailed()
