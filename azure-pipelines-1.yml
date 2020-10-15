@@ -2,36 +2,34 @@ trigger:
 - master
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'VS2017-Win2016'
 
 variables:
   buildConfiguration: 'Release'
-  buildPlatform: 'AnyCPU'
+  outputDirectory: '$(build.binariesDirectory)/$(buildConfiguration)'
 
 steps:
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
   inputs:
-    restoreSolution: '**/backdoor.sln'
+    command: restore
+    restoreSolution: '**/*.sln'
 
-- task: AppCenterDistribute@3
-  inputs:
-    serverEndpoint: 'serviceConnection-APIToken-User'
-    appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
-    appFile: '$(build.binariesDirectory)/$(buildConfiguration)/*.apk'
-    symbolsOption: 'Android'
-    releaseNotesOption: 'input'
-    destinationType: 'groups'
+- task: XamarinAndroid@1
+  inputs:    
+    projectFile: '**/*.Droid.csproj'
+    outputDirectory: '$(outputDirectory)'
+    configuration: '$(buildConfiguration)'
 
 - task: CopyFiles@2
   displayName: 'copy the tools folder because wild cards seem to fail on the tools'
   inputs:
     Contents: '_buildOutput/**'
-    targetFolder: $(Build.ArtifactStagingDirectory)
+    targetFolder: $(outputDirectory)
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact drop-android'
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    PathtoPublish: '$(outputDirectory)'
     ArtifactName: 'drop-mmc'
