@@ -10,9 +10,8 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  variables:
-    buildConfiguration: 'Release'
-    buildPlatform: 'AnyCPU'    
+  buildConfiguration: 'Release'
+  buildPlatform: 'AnyCPU'    
 
 steps:
 - task: NuGetToolInstaller@1
