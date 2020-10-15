@@ -1,8 +1,3 @@
-# Universal Windows Platform
-# Build a Universal Windows Platform project using Visual Studio.
-# Add steps that test and distribute an app, save build artifacts, and more:
-# https://aka.ms/yaml
-
 trigger:
 - master
 
@@ -10,82 +5,33 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
+  solution: '**/*.sln'
+  buildPlatform: 'x86|x64|ARM'
   buildConfiguration: 'Release'
-  buildPlatform: 'AnyCPU'    
+  appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
 
 steps:
-- task: NuGetToolInstaller@1
+- task: NuGetToolInstaller@0
 
 - task: NuGetCommand@2
   inputs:
-    restoreSolution: '**/backdoor.sln'
+    restoreSolution: '$(solution)'
 
-- task: XamarinAndroid@1
+- task: VSBuild@1
   inputs:
-    projectFile: '**/backdoor.Droid.csproj'
-    outputDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)'
+    platform: 'x86'
+    solution: '$(solution)'
     configuration: '$(buildConfiguration)'
-    msbuildArchitectureOption: 'x64'
-    jdkOption: 'JDKVersion'
-
-- task: Bash@3
-  inputs:
-    targetType: 'inline'
-    script: |
-      echo '*********'
-      ls -R '$(Build.ArtifactStagingDirectory)'
-      echo '2 <<<<<<<<<<<<<<<'
-      ls -R '$(build.binariesdirectory)'
-      echo '3 <<<<<<<<<<<<<<<'
-      ls -R '$(build.binariesdirectory)/$(BuildConfiguration)'
+    msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(appxPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload'
   
-      
-- task: MSBuild@1
-  displayName: 'Build all **/*Tests.csproj files'
-  inputs:      
-    solution: "**/*Tests.csproj"
-    configuration: '$(buildConfiguration)'
-    msbuildArguments: '/p:OutputPath="$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly"'
-
-- task: AndroidSigning@2
-  displayName: "align and sign"  
+- task: CopyFiles@2
+  displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
   inputs:
-    # NOTE: Just for check
-    apkFiles: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
-    jarsign: false
+    SourceFolder: '$(system.defaultworkingdirectory)'
+    Contents: '**\bin\$(BuildConfiguration)\**'
+    TargetFolder: '$(build.artifactstagingdirectory)'
 
 - task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: drop'
   inputs:
-    PathtoPublish: '$(build.binariesdirectory)/$(BuildConfiguration)'
-    ArtifactName: 'drop'
-
-- task: Bash@3
-  inputs:
-    targetType: 'inline'
-    script: |
-      echo '*********'
-      ls -R '$(build.sourcesdirectory)'
-      echo '1 <<<<<<<<<<<<<<<'
-      ls -R '$(Build.ArtifactStagingDirectory)'
-      echo '2 <<<<<<<<<<<<<<<'
-      ls -R '$(build.binariesdirectory)'
-      echo '3 <<<<<<<<<<<<<<<'
-      ls -R '$(build.binariesdirectory)/$(BuildConfiguration)'
-
-- task: CopyFiles@2
-  displayName: 'copy the tools folder because wild cards seem to fail on the tools'
-  inputs:
-    Contents: '**/Xamarin.UITest.*/**'
-    SourceFolder: '$(build.sourcesdirectory)/packages'
-    TargetFolder: '$(build.sourcesdirectory)/tools'
-    flattenFolders: true
-  
-- task: Bash@3
-  inputs:
-    targetType: 'inline'
-    script: |
-      echo '*********'
-      ls -R '$(build.sourcesdirectory)'
-      echo '2 <<<<<<<<<<<<<<<'
-      ls -R '$(build.binariesdirectory)'
-      echo 'END'
+    PathtoPublish: '$(build.artifactstagingdirectory)'
