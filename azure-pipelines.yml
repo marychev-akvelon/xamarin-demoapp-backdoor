@@ -28,6 +28,18 @@ steps:
     msbuildArchitectureOption: 'x64'
     jdkOption: 'JDKVersion'
 
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      echo '*********'
+      ls -R '$(Build.ArtifactStagingDirectory)'
+      echo '2 <<<<<<<<<<<<<<<'
+      ls -R '$(build.binariesdirectory)'
+      echo '3 <<<<<<<<<<<<<<<'
+      ls -R '$(build.binariesdirectory)/$(BuildConfiguration)'
+  
+      
 - task: MSBuild@1
   displayName: 'Build all **/*Tests.csproj files'
   inputs:      
@@ -44,7 +56,7 @@ steps:
 
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    PathtoPublish: '$(build.binariesdirectory)/$(BuildConfiguration)'
     ArtifactName: 'drop'
 
 - task: Bash@3
@@ -52,8 +64,13 @@ steps:
     targetType: 'inline'
     script: |
       echo '*********'
-      ls -R '$(Build.ArtifactStagingDirectory)'
       ls -R '$(build.sourcesdirectory)'
+      echo '1 <<<<<<<<<<<<<<<'
+      ls -R '$(Build.ArtifactStagingDirectory)'
+      echo '2 <<<<<<<<<<<<<<<'
+      ls -R '$(build.binariesdirectory)'
+      echo '3 <<<<<<<<<<<<<<<'
+      ls -R '$(build.binariesdirectory)/$(BuildConfiguration)'
 
 - task: CopyFiles@2
   displayName: 'copy the tools folder because wild cards seem to fail on the tools'
@@ -68,4 +85,7 @@ steps:
     targetType: 'inline'
     script: |
       echo '*********'
-      ls -R '$(Build.ArtifactStagingDirectory)'
+      ls -R '$(build.sourcesdirectory)'
+      echo '2 <<<<<<<<<<<<<<<'
+      ls -R '$(build.binariesdirectory)'
+      echo 'END'
