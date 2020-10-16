@@ -12,7 +12,7 @@ pool:
 variables:
   solution: '**/*.sln'
   buildPlatform: 'AnyCPU'
-  buildConfiguration: 'Release|x64'
+  buildConfiguration: 'x64'
   appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
 
 steps:
