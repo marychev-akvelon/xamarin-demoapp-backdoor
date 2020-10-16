@@ -1,0 +1,36 @@
+# Universal Windows Platform
+# Build a Universal Windows Platform project using Visual Studio.
+# Add steps that test and distribute an app, save build artifacts, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'x86|x64|ARM'
+  buildConfiguration: 'Release'
+  appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
+
+steps:
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: AppCenterTest@1
+  inputs:
+    appFile: '$(System.DefaultWorkingDirectory)/_marychev-akvelon.xamarin-demoapp-backdoor (7)/drop/build/com.appcenter.backdoor.apk'
+    artifactsDirectory: '$(Build.ArtifactStagingDirectory)/AppCenterTest'
+    prepareTests: false
+    credentialsOption: 'serviceEndpoint'
+    serverEndpoint: 'serviceConnection-APIToken-User'
+    appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
+    devices: 'v-mimary-microsoft.com/my-phone'
+    localeOption: 'en_US'
+    skipWaitingForResults: true
+    showDebugOutput: true
