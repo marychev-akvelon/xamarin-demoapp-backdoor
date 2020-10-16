@@ -9,22 +9,22 @@ trigger:
 pool:
   vmImage: 'windows-latest'
 
-# variables:
-#   solution: '**/*.sln'
-#   buildPlatform: 'x86|x64|ARM'
-#   buildConfiguration: 'Release'
-#   appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'x86|x64|ARM'
+  buildConfiguration: 'Release'
+  appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
 
 steps:
-# - task: NuGetToolInstaller@1
+- task: NuGetToolInstaller@1
 
-# - task: NuGetCommand@2
-#   inputs:
-#     restoreSolution: '$(solution)'
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
 
 - task: AppCenterTest@1
   inputs:
-    appFile: '$(System.DefaultWorkingDirectory)/_marychev-akvelon.xamarin-demoapp-backdoor (7)/drop/build/com.appcenter.backdoor.apk'
+    appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
     artifactsDirectory: '$(Build.ArtifactStagingDirectory)/AppCenterTest'
     prepareTests: false
     credentialsOption: 'serviceEndpoint'
@@ -33,4 +33,3 @@ steps:
     devices: 'v-mimary-microsoft.com/my-phone'
     localeOption: 'en_US'
     skipWaitingForResults: true
-    showDebugOutput: true
