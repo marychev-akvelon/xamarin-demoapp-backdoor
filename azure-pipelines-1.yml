@@ -39,7 +39,7 @@ jobs:
     inputs:      
       solution: "**/*Tests.csproj"
       configuration: '$(BuildConfiguration)'
-      msbuildArguments: '/p:OutputPath="$(build.binariesdirectory)/$(BuildConfiguration)"'
+      msbuildArguments: '/p:OutputPath="$(build.binariesdirectory)/$(BuildConfiguration)/mmc"'
   
   # - task: VSBuild@1
   #   inputs:
