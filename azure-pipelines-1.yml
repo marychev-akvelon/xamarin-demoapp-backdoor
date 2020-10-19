@@ -47,12 +47,21 @@ jobs:
       apkFiles: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
       jarsign: false
 
+  # - task: CopyFiles@2
+  #   displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+  #   inputs:
+  #     SourceFolder: '$(system.defaultworkingdirectory)'
+  #     Contents: '**'
+  #     TargetFolder: '$(build.artifactstagingdirectory)'
+
   - task: CopyFiles@2
-    displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+    displayName: 'copy the tools folder because wild cards seem to fail on the tools'
     inputs:
-      SourceFolder: '$(system.defaultworkingdirectory)'
-      Contents: '**'
-      TargetFolder: '$(build.artifactstagingdirectory)'
+      Contents: '**/Xamarin.UITest.*/**'
+      SourceFolder: '$(build.sourcesdirectory)/packages'
+      TargetFolder: '$(build.sourcesdirectory)/tools'
+      flattenFolders: true
+
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact drop-android'
@@ -60,13 +69,6 @@ jobs:
       PathtoPublish: '$(build.binariesdirectory)/$(BuildConfiguration)'
       ArtifactName: 'drop-mmc'
 
-  # - task: CopyFiles@2
-  #   displayName: 'copy the tools folder because wild cards seem to fail on the tools'
-  #   inputs:
-  #     Contents: '**/Xamarin.UITest.*/**'
-  #     SourceFolder: '$(build.sourcesdirectory)/packages'
-  #     TargetFolder: '$(build.sourcesdirectory)/tools'
-  #     flattenFolders: true
 
   # - task: Bash@3
   #   displayName: "list tools directory"
