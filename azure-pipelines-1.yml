@@ -29,7 +29,7 @@ jobs:
     inputs:
       projectFile: '**/backdoor.Droid.csproj'
       outputDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)'
-      configuration: '$(buildConfiguration)'
+      configuration: '$(BuildConfiguration)'
       msbuildArchitectureOption: x64
       jdkOption: 'JDKVersion'
       
@@ -38,7 +38,7 @@ jobs:
     displayName: 'Build all **/*Tests.csproj files'
     inputs:      
       solution: "**/*Tests.csproj"
-      configuration: '$(buildConfiguration)'
+      configuration: '$(BuildConfiguration)'
       msbuildArguments: '/p:OutputPath="$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly"'
 
   - task: AndroidSigning@2
@@ -46,20 +46,27 @@ jobs:
     inputs:
       apkFiles: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
       jarsign: false
-  
+
+  - task: CopyFiles@2
+    displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+    inputs:
+      SourceFolder: '$(system.defaultworkingdirectory)'
+      Contents: '**'
+      TargetFolder: '$(build.artifactstagingdirectory)'
+
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact drop-android'
     inputs:
       PathtoPublish: '$(build.binariesdirectory)/$(BuildConfiguration)'
       ArtifactName: 'drop-mmc'
 
-  - task: CopyFiles@2
-    displayName: 'copy the tools folder because wild cards seem to fail on the tools'
-    inputs:
-      Contents: '**/Xamarin.UITest.*/**'
-      SourceFolder: '$(build.sourcesdirectory)/packages'
-      TargetFolder: '$(build.sourcesdirectory)/tools'
-      flattenFolders: true
+  # - task: CopyFiles@2
+  #   displayName: 'copy the tools folder because wild cards seem to fail on the tools'
+  #   inputs:
+  #     Contents: '**/Xamarin.UITest.*/**'
+  #     SourceFolder: '$(build.sourcesdirectory)/packages'
+  #     TargetFolder: '$(build.sourcesdirectory)/tools'
+  #     flattenFolders: true
 
   # - task: Bash@3
   #   displayName: "list tools directory"
@@ -68,17 +75,17 @@ jobs:
   #     script: |
   #       ls -Rhal '$(build.sourcesdirectory)/tools'
 
-  - task: AppCenterDistribute@3
-    displayName: 'distribute android to app center'
-    inputs:
-      # YOUR NEW serviceConnection
-      serverEndpoint: 'serviceConnection-APIToken-User'
-      appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
-      appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
-      symbolsOption: 'Android'
-      releaseNotesOption: 'input'
-      releaseNotesInput: 'These are my release notes'
-      destinationType: 'groups'
+  # - task: AppCenterDistribute@3
+  #   displayName: 'distribute android to app center'
+  #   inputs:
+  #     # YOUR NEW serviceConnection
+  #     serverEndpoint: 'serviceConnection-APIToken-User'
+  #     appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
+  #     appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
+  #     symbolsOption: 'Android'
+  #     releaseNotesOption: 'input'
+  #     releaseNotesInput: 'These are my release notes'
+  #     destinationType: 'groups'
 
   # - task: AppCenterTest@1
   #   displayName: 'Test with Visual Studio App Center'
