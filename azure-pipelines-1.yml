@@ -53,14 +53,21 @@ jobs:
   #     SourceFolder: '$(system.defaultworkingdirectory)'
   #     Contents: '**'
   #     TargetFolder: '$(build.artifactstagingdirectory)'
-
   - task: CopyFiles@2
     displayName: 'copy the tools folder because wild cards seem to fail on the tools'
     inputs:
       Contents: '**/Xamarin.UITest.*/**'
-      SourceFolder: '$(build.sourcesdirectory)/packages'
-      TargetFolder: '$(build.sourcesdirectory)/tools'
+      SourceFolder: '$(build.defaultworkingdirectory)'
+      TargetFolder: '$(build.defaultworkingdirectory)/tools'
       flattenFolders: true
+
+  # - task: CopyFiles@2
+  #   displayName: 'copy the tools folder because wild cards seem to fail on the tools'
+  #   inputs:
+  #     Contents: '**/Xamarin.UITest.*/**'
+  #     SourceFolder: '$(build.sourcesdirectory)/packages'
+  #     TargetFolder: '$(build.sourcesdirectory)/tools'
+  #     flattenFolders: true
 
 
   - task: PublishBuildArtifacts@1
