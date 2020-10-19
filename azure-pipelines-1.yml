@@ -68,17 +68,17 @@ jobs:
   #     script: |
   #       ls -Rhal '$(build.sourcesdirectory)/tools'
 
-  # - task: AppCenterDistribute@3
-  #   displayName: 'distribute android to app center'
-  #   inputs:
-  #     # YOUR NEW serviceConnection
-  #     serverEndpoint: 'serviceConnection-APIToken-User'
-  #     appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
-  #     appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
-  #     symbolsOption: 'Android'
-  #     releaseNotesOption: 'input'
-  #     releaseNotesInput: 'These are my release notes'
-  #     destinationType: 'groups'
+  - task: AppCenterDistribute@3
+    displayName: 'distribute android to app center'
+    inputs:
+      # YOUR NEW serviceConnection
+      serverEndpoint: 'serviceConnection-APIToken-User'
+      appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
+      appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
+      symbolsOption: 'Android'
+      releaseNotesOption: 'input'
+      releaseNotesInput: 'These are my release notes'
+      destinationType: 'groups'
 
   # - task: AppCenterTest@1
   #   displayName: 'Test with Visual Studio App Center'
