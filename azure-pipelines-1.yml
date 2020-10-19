@@ -58,7 +58,7 @@ jobs:
     inputs:
       Contents: '**/Xamarin.UITest.*/**'
       SourceFolder: '$(build.defaultworkingdirectory)'
-      TargetFolder: '$(build.defaultworkingdirectory)/tools'
+      TargetFolder: '$(build.artifactstagingdirectory)/tools'
       flattenFolders: true
 
   # - task: CopyFiles@2
