@@ -53,13 +53,13 @@ jobs:
       PathtoPublish: '$(build.binariesdirectory)/$(BuildConfiguration)'
       ArtifactName: 'drop-mmc'
 
-  # - task: CopyFiles@2
-  #   displayName: 'copy the tools folder because wild cards seem to fail on the tools'
-  #   inputs:
-  #     Contents: '**/Xamarin.UITest.*/**'
-  #     SourceFolder: '$(build.sourcesdirectory)/packages'
-  #     TargetFolder: '$(build.sourcesdirectory)/tools'
-  #     flattenFolders: true
+  - task: CopyFiles@2
+    displayName: 'copy the tools folder because wild cards seem to fail on the tools'
+    inputs:
+      Contents: '**/Xamarin.UITest.*/**'
+      SourceFolder: '$(build.sourcesdirectory)/packages'
+      TargetFolder: '$(build.sourcesdirectory)/tools'
+      flattenFolders: true
 
   # - task: Bash@3
   #   displayName: "list tools directory"
@@ -68,31 +68,31 @@ jobs:
   #     script: |
   #       ls -Rhal '$(build.sourcesdirectory)/tools'
 
-  - task: AppCenterDistribute@3
-    displayName: 'distribute android to app center'
-    inputs:
-      # YOUR NEW serviceConnection
-      serverEndpoint: 'serviceConnection-APIToken-User'
-      appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
-      appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
-      symbolsOption: 'Android'
-      releaseNotesOption: 'input'
-      releaseNotesInput: 'These are my release notes'
-      destinationType: 'groups'
+  # - task: AppCenterDistribute@3
+  #   displayName: 'distribute android to app center'
+  #   inputs:
+  #     # YOUR NEW serviceConnection
+  #     serverEndpoint: 'serviceConnection-APIToken-User'
+  #     appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
+  #     appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
+  #     symbolsOption: 'Android'
+  #     releaseNotesOption: 'input'
+  #     releaseNotesInput: 'These are my release notes'
+  #     destinationType: 'groups'
 
-  - task: AppCenterTest@1
-    displayName: 'Test with Visual Studio App Center'
-    inputs:
-      appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
-      artifactsDirectory: '$(Build.ArtifactStagingDirectory)/AppCenterTest'
-      frameworkOption: 'uitest'
-      uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
-      uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
-      credentialsOption: 'serviceEndpoint'
-      serverEndpoint: 'serviceConnection-APIToken-User'
-      appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
-      devices: 'v-mimary-microsoft.com/my-phone'
-      localeOption: 'en_US'
-      skipWaitingForResults: true
-      showDebugOutput: true
-    condition: succeededOrFailed()
+  # - task: AppCenterTest@1
+  #   displayName: 'Test with Visual Studio App Center'
+  #   inputs:
+  #     appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
+  #     artifactsDirectory: '$(Build.ArtifactStagingDirectory)/AppCenterTest'
+  #     frameworkOption: 'uitest'
+  #     uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
+  #     uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
+  #     credentialsOption: 'serviceEndpoint'
+  #     serverEndpoint: 'serviceConnection-APIToken-User'
+  #     appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
+  #     devices: 'v-mimary-microsoft.com/my-phone'
+  #     localeOption: 'en_US'
+  #     skipWaitingForResults: true
+  #     showDebugOutput: true
+  #   condition: succeededOrFailed()
