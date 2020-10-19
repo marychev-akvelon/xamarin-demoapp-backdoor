@@ -56,9 +56,9 @@ jobs:
   - task: CopyFiles@2
     displayName: 'copy the tools folder because wild cards seem to fail on the tools'
     inputs:
-      Contents: '**/Xamarin.UITest.*/**'
+      Contents: '**'
       SourceFolder: '$(system.defaultworkingdirectory)'
-      TargetFolder: '$(build.artifactstagingdirectory)/tools'
+      TargetFolder: '$(build.artifactstagingdirectory)'
       flattenFolders: true
 
   # - task: CopyFiles@2
