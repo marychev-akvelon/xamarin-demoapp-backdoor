@@ -43,7 +43,7 @@ jobs:
   
   - task: VSBuild@1
     inputs:
-      solution: '$(solution)'
+      solution: '**/*.sln'
       msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" 
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
