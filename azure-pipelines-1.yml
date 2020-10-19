@@ -33,42 +33,30 @@ jobs:
       msbuildArchitectureOption: x64
       jdkOption: 'JDKVersion'
       
-  # let's build all the tests so we can run them in AppCenter
-  - task: MSBuild@1
-    displayName: 'Build all **/*Tests.csproj files'
-    inputs:      
-      solution: "**/*Tests.csproj"
-      configuration: '$(BuildConfiguration)'
-      msbuildArguments: '/p:OutputPath="$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly"'
-
-  - task: AndroidSigning@2
-    displayName: "align and sign"  
+  # # let's build all the tests so we can run them in AppCenter
+  # - task: MSBuild@1
+  #   displayName: 'Build all **/*Tests.csproj files'
+  #   inputs:      
+  #     solution: "**/*Tests.csproj"
+  #     configuration: '$(BuildConfiguration)'
+  #     msbuildArguments: '/p:OutputPath="$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly"'
+  
+  - task: VSBuild@1
     inputs:
-      apkFiles: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
-      jarsign: false
+      solution: '$(solution)'
+      msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" 
+                    /p:AppxPackageDir="$(appxPackageDir)"
+                    /p:AppxBundle=Always
+                    /p:UapAppxPackageBuildMode=StoreUpload'
+      configuration: '$(buildConfiguration)'
 
-  # - task: CopyFiles@2
-  #   displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
-  #   inputs:
-  #     SourceFolder: '$(system.defaultworkingdirectory)'
-  #     Contents: '**'
-  #     TargetFolder: '$(build.artifactstagingdirectory)'
   - task: CopyFiles@2
     displayName: 'copy the tools folder because wild cards seem to fail on the tools'
     inputs:
-      Contents: '**'
-      SourceFolder: '$(system.defaultworkingdirectory)'
-      TargetFolder: '$(build.artifactstagingdirectory)'
-      flattenFolders: true
-
-  # - task: CopyFiles@2
-  #   displayName: 'copy the tools folder because wild cards seem to fail on the tools'
-  #   inputs:
-  #     Contents: '**/Xamarin.UITest.*/**'
-  #     SourceFolder: '$(build.sourcesdirectory)/packages'
-  #     TargetFolder: '$(build.sourcesdirectory)/tools'
-  #     flattenFolders: true
-
+      Contents: '**/Xamarin.UITest.*/**'
+      SourceFolder: '$(build.sourcesdirectory)/packages'
+      TargetFolder: '$(build.sourcesdirectory)/tools'
+      # flattenFolders: true
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact drop-android'
