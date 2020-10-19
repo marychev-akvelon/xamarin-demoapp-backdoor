@@ -22,7 +22,7 @@ jobs:
     displayName: "nuget restore solution"
     inputs:
       restoreSolution: '**/backdoor.sln'
-      vstsFeed: 'MasterFeed'
+      # vstsFeed: 'MasterFeed'
   
   - task: XamarinAndroid@1
     displayName: "build android"
@@ -33,30 +33,29 @@ jobs:
       msbuildArchitectureOption: x64
       jdkOption: 'JDKVersion'
       
-  # # let's build all the tests so we can run them in AppCenter
-  # - task: MSBuild@1
-  #   displayName: 'Build all **/*Tests.csproj files'
-  #   inputs:      
-  #     solution: "**/*Tests.csproj"
-  #     configuration: '$(BuildConfiguration)'
-  #     msbuildArguments: '/p:OutputPath="$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly"'
+  # let's build all the tests so we can run them in AppCenter
+  - task: MSBuild@1
+    displayName: 'Build all **/*Tests.csproj files'
+    inputs:      
+      solution: "**/*Tests.csproj"
+      configuration: '$(BuildConfiguration)'
+      msbuildArguments: '/p:OutputPath="$(build.binariesdirectory)/$(BuildConfiguration)"'
   
-  - task: VSBuild@1
-    inputs:
-      solution: '**/*.sln'
-      msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" 
-                    /p:AppxPackageDir="$(appxPackageDir)"
-                    /p:AppxBundle=Always
-                    /p:UapAppxPackageBuildMode=StoreUpload'
-      configuration: '$(buildConfiguration)'
+  # - task: VSBuild@1
+  #   inputs:
+  #     solution: '**/*.sln'
+  #     msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" 
+  #                   /p:AppxPackageDir="$(appxPackageDir)"
+  #                   /p:AppxBundle=Always
+  #                   /p:UapAppxPackageBuildMode=StoreUpload'
+  #     configuration: '$(buildConfiguration)'
 
   - task: CopyFiles@2
-    displayName: 'copy the tools folder because wild cards seem to fail on the tools'
+    displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
     inputs:
-      Contents: '**/Xamarin.UITest.*/**'
-      SourceFolder: '$(build.sourcesdirectory)/packages'
-      TargetFolder: '$(build.sourcesdirectory)/tools'
-      # flattenFolders: true
+      SourceFolder: '$(system.defaultworkingdirectory)'
+      Contents: '**'
+      TargetFolder: '$(build.artifactstagingdirectory)'
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact drop-android'
