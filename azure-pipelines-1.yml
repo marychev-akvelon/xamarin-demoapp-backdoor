@@ -1,0 +1,101 @@
+trigger:
+- master
+  
+jobs:
+ 
+- job: Android
+  displayName: "job android"
+  pool:
+    name: Hosted Windows 2019 with VS2019
+  variables:
+    buildConfiguration: 'Release'
+    buildPlatform: 'AnyCPU'
+
+  steps:
+
+  - task: NuGetToolInstaller@1
+    displayName: 'Install nuget'
+    inputs:
+      versionSpec: '5.3.0'
+
+  - task: NuGetCommand@2
+    displayName: "nuget restore solution"
+    inputs:
+      restoreSolution: '**/backdoor.sln'
+      # vstsFeed: 'MasterFeed'
+  
+  - task: XamarinAndroid@1
+    displayName: "build android"
+    inputs:
+      projectFile: '**/backdoor.Droid.csproj'
+      outputDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)'
+      configuration: '$(BuildConfiguration)'
+      msbuildArchitectureOption: x64
+      jdkOption: 'JDKVersion'
+      
+  # let's build all the tests so we can run them in AppCenter
+  - task: MSBuild@1
+    displayName: 'Build all **/*Tests.csproj files'
+    inputs:      
+      solution: "**/*Tests.csproj"
+      configuration: '$(BuildConfiguration)'
+      msbuildArguments: '/p:OutputPath="$(build.binariesdirectory)/$(BuildConfiguration)/mmc"'
+  
+  - task: VSBuild@1
+    inputs:
+      solution: '**/*.sln'
+      msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" 
+                    /p:AppxPackageDir="$(appxPackageDir)"
+                    /p:AppxBundle=Always
+                    /p:UapAppxPackageBuildMode=StoreUpload'
+      configuration: '$(buildConfiguration)'
+
+  - task: CopyFiles@2
+    displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+    inputs:
+      SourceFolder: '$(system.defaultworkingdirectory)'
+      Contents: '**'
+      TargetFolder: '$(build.artifactstagingdirectory)'
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact drop-android'
+    inputs:
+      PathtoPublish: '$(build.binariesdirectory)/$(BuildConfiguration)'
+      ArtifactName: 'drop-mmc'
+
+
+  # - task: Bash@3
+  #   displayName: "list tools directory"
+  #   inputs: 
+  #     targetType: inline
+  #     script: |
+  #       ls -Rhal '$(build.sourcesdirectory)/tools'
+
+  # - task: AppCenterDistribute@3
+  #   displayName: 'distribute android to app center'
+  #   inputs:
+  #     # YOUR NEW serviceConnection
+  #     serverEndpoint: 'serviceConnection-APIToken-User'
+  #     appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
+  #     appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
+  #     symbolsOption: 'Android'
+  #     releaseNotesOption: 'input'
+  #     releaseNotesInput: 'These are my release notes'
+  #     destinationType: 'groups'
+
+  # - task: AppCenterTest@1
+  #   displayName: 'Test with Visual Studio App Center'
+  #   inputs:
+  #     appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
+  #     artifactsDirectory: '$(Build.ArtifactStagingDirectory)/AppCenterTest'
+  #     frameworkOption: 'uitest'
+  #     uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
+  #     uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
+  #     credentialsOption: 'serviceEndpoint'
+  #     serverEndpoint: 'serviceConnection-APIToken-User'
+  #     appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
+  #     devices: 'v-mimary-microsoft.com/my-phone'
+  #     localeOption: 'en_US'
+  #     skipWaitingForResults: true
+  #     showDebugOutput: true
+  #   condition: succeededOrFailed()
