@@ -12,6 +12,7 @@ jobs:
     solution: '**/backdoor.sln'
     buildPlatform: 'x86|x64|ARM'
     buildConfiguration: 'Release'
+    varOutputDirectory: '$(build.ArtifactStagingDirectory)/$(buildConfiguration)'
 
   steps:
 
@@ -28,7 +29,7 @@ jobs:
     displayName: "build android"
     inputs:
       projectFile: '**/backdoor.Droid.csproj'
-      outputDirectory: '$(build.ArtifactStagingDirectory)/$(buildConfiguration)'
+      outputDirectory: ''
       configuration: '$(buildConfiguration)'
       msbuildArchitectureOption: x64
       jdkOption: 'JDKVersion'
@@ -37,7 +38,7 @@ jobs:
   - task: AndroidSigning@2
     displayName: "align and sign"  
     inputs:
-      apkFiles: '$(outputDirectory)/*.apk'
+      apkFiles: '$(varOutputDirectory)/*.apk'
       jarsign: false
 
   # let's build all the tests so we can run them in AppCenter
@@ -46,21 +47,21 @@ jobs:
     inputs:      
       solution: "**/*Tests.csproj"
       configuration: '$(buildConfiguration)'
-      msbuildArguments: '/p:OutputPath="$(outputDirectory)/test-assembly"'
+      msbuildArguments: '/p:OutputPath="$(varOutputDirectory)/test-assembly"'
    
   - task: CopyFiles@2
     displayName: 'Copy files'
     inputs:
       SourceFolder: '$(build.sourcesdirectory)'
       Contents: '**/$(BuildConfiguration)/**/?(*.exe|*.dll|*.pdb)'
-      TargetFolder: '$(outputDirectory)/temp-1'
+      TargetFolder: '$(varOutputDirectory)/temp-1'
 
   - task: CopyFiles@2
     displayName: 'Copy 3'
     inputs:
-      sourceFolder: '$(outputDirectory)/test-assembly'
+      sourceFolder: '$(varOutputDirectory)/test-assembly'
       contents: '**/$(BuildConfiguration)/**/?(*.exe|*.dll|*.pdb)'
-      targetFolder: '$(outputDirectory)/temp-2'
+      targetFolder: '$(varOutputDirectory)/temp-2'
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: drop'
