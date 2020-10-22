@@ -37,7 +37,7 @@ jobs:
   - task: AndroidSigning@2
     displayName: "align and sign"  
     inputs:
-      apkFiles: '$(build.ArtifactStagingDirectory)/$(buildConfiguration)/*.apk'
+      apkFiles: '$(outputDirectory)/*.apk'
       jarsign: false
 
   # let's build all the tests so we can run them in AppCenter
@@ -46,22 +46,21 @@ jobs:
     inputs:      
       solution: "**/*Tests.csproj"
       configuration: '$(buildConfiguration)'
-      msbuildArguments: '/p:OutputPath="$(build.ArtifactStagingDirectory)/$(BuildConfiguration)/test-assembly"'
+      msbuildArguments: '/p:OutputPath="$(outputDirectory)/test-assembly"'
    
   - task: CopyFiles@2
     displayName: 'Copy files'
     inputs:
-      SourceFolder: '$(system.defaultworkingdirectory)'
-      Contents: '**'
-      TargetFolder: '$(build.artifactstagingdirectory)/$(buildConfiguration)'
-      flattenFolders: true
+      SourceFolder: '$(build.sourcesdirectory)'
+      Contents: '**/$(BuildConfiguration)/**/?(*.exe|*.dll|*.pdb)'
+      TargetFolder: '$(outputDirectory)/temp-1'
 
   - task: CopyFiles@2
     displayName: 'Copy 3'
     inputs:
-      sourceFolder: '$(build.ArtifactStagingDirectory)/$(buildConfiguration)/test-assembly'
-      contents: '**'
-      targetFolder: '$(Build.ArtifactStagingDirectory)'
+      sourceFolder: '$(outputDirectory)/test-assembly'
+      contents: '**/$(BuildConfiguration)/**/?(*.exe|*.dll|*.pdb)'
+      targetFolder: '$(outputDirectory)/temp-2'
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: drop'
