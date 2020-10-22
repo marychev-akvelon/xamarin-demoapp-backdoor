@@ -67,3 +67,13 @@ jobs:
     displayName: 'Publish Artifact: drop'
     inputs:
       PathtoPublish: '$(varOutputDirectory)'
+
+  - task: AppCenterDistribute@3
+    inputs:
+      serverEndpoint: 'serviceConnection-APIToken-User'
+      appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
+      appFile: '$(varOutputDirectory)/*.apk'
+      symbolsOption: 'Android'
+      releaseNotesOption: 'input'
+      destinationType: 'groups'
+      isSilent: true
