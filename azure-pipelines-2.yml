@@ -40,7 +40,7 @@ jobs:
   - task: XamarinAndroid@1
     displayName: "build android"
     inputs:
-      projectFile: '**/FingerPaint.csproj'                                
+      projectFile: '**/backdoor.Droid.csproj'
       outputDirectory: '$(build.ArtifactStagingDirectory)/$(buildConfiguration)'
       configuration: '$(buildConfiguration)'
       msbuildArchitectureOption: x64
@@ -57,7 +57,7 @@ jobs:
   - task: MSBuild@1
     displayName: 'Build all Tests-csproj files'
     inputs:      
-      solution: "**/*.csproj"
+      solution: "**/*Tests.csproj"
       configuration: '$(buildConfiguration)'
       msbuildArguments: '/p:OutputPath="$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly"'
       
