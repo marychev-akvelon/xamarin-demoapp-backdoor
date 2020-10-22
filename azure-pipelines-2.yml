@@ -56,12 +56,12 @@ jobs:
       Contents: '**/$(BuildConfiguration)/**/?(*.exe|*.dll|*.pdb)'
       TargetFolder: '$(varOutputDirectory)/temp-1'
 
-  - task: CopyFiles@2
-    displayName: 'Copy 3'
-    inputs:
-      sourceFolder: '$(varOutputDirectory)/test-assembly'
-      contents: '**/$(BuildConfiguration)/**/?(*.exe|*.dll|*.pdb)'
-      targetFolder: '$(varOutputDirectory)/temp-2'
+  # - task: CopyFiles@2
+  #   displayName: 'Copy 3'
+  #   inputs:
+  #     sourceFolder: '$(varOutputDirectory)/test-assembly'
+  #     contents: '**/$(BuildConfiguration)/**/?(*.exe|*.dll|*.pdb)'
+  #     targetFolder: '$(varOutputDirectory)/temp-2'
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: drop'
