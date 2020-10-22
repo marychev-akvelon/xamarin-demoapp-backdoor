@@ -12,7 +12,6 @@ jobs:
     solution: '**/backdoor.sln'
     buildPlatform: 'x86|x64|ARM'
     buildConfiguration: 'Release'
-    appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
 
   steps:
 
@@ -24,18 +23,6 @@ jobs:
   - task: NuGetCommand@2
     inputs:
       restoreSolution: '$(solution)'
-
-  #   # Try to use this task instead of the MSBuild@1 task
-  #   # Tip: If you are building a solution, we recommend you use the Visual Studio build task instead of the MSBuild task.
-  #   # https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/build/visual-studio-build?view=azure-devops
-  # - task: VSBuild@1
-  #   inputs:
-  #     solution: '$(solution)'
-  #     msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" 
-  #                   /p:AppxPackageDir="$(appxPackageDir)"
-  #                   /p:AppxBundle=Always
-  #                   /p:UapAppxPackageBuildMode=StoreUpload'
-  #     configuration: '$(buildConfiguration)'
     
   - task: XamarinAndroid@1
     displayName: "build android"
@@ -59,33 +46,24 @@ jobs:
     inputs:      
       solution: "**/*Tests.csproj"
       configuration: '$(buildConfiguration)'
-      msbuildArguments: '/p:OutputPath="$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly"'
+      msbuildArguments: '/p:OutputPath="$(build.ArtifactStagingDirectory)/$(BuildConfiguration)/test-assembly"'
    
-  # - task: CopyFiles@2
-  #   displayName: 'copy 1'
-  #   inputs:
-  #     Contents: '**/Xamarin.UITest.*/**'
-  #     SourceFolder: '$(build.sourcesdirectory)/packages'
-  #     TargetFolder: '$(build.sourcesdirectory)/tools'
-  #     flattenFolders: true
-
   - task: CopyFiles@2
     displayName: 'Copy files'
     inputs:
       SourceFolder: '$(system.defaultworkingdirectory)'
-      Contents: |
-        **
-        !.git/**/*
-      TargetFolder: '$(build.artifactstagingdirectory)'
+      Contents: '**'
+      TargetFolder: '$(build.artifactstagingdirectory)/$(buildConfiguration)'
+      flattenFolders: true
 
   - task: CopyFiles@2
     displayName: 'Copy 3'
     inputs:
-      sourceFolder: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
+      sourceFolder: '$(build.ArtifactStagingDirectory)/$(buildConfiguration)/test-assembly'
       contents: '**'
       targetFolder: '$(Build.ArtifactStagingDirectory)'
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: drop'
     inputs:
-      PathtoPublish: '$(build.artifactstagingdirectory)'
+      PathtoPublish: '$(build.artifactstagingdirectory)/$(buildConfiguration)'
