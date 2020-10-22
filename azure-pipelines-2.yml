@@ -61,35 +61,29 @@ jobs:
       configuration: '$(buildConfiguration)'
       msbuildArguments: '/p:OutputPath="$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly"'
    
-  - task: CopyFiles@2
-    displayName: 'copy 1'
-    inputs:
-      Contents: '**/Xamarin.UITest.*/**'
-      SourceFolder: '$(build.sourcesdirectory)/packages'
-      TargetFolder: '$(build.sourcesdirectory)/tools'
-      flattenFolders: true
+  # - task: CopyFiles@2
+  #   displayName: 'copy 1'
+  #   inputs:
+  #     Contents: '**/Xamarin.UITest.*/**'
+  #     SourceFolder: '$(build.sourcesdirectory)/packages'
+  #     TargetFolder: '$(build.sourcesdirectory)/tools'
+  #     flattenFolders: true
 
   - task: CopyFiles@2
-    displayName: 'Copy 2'
+    displayName: 'Copy files'
     inputs:
       SourceFolder: '$(system.defaultworkingdirectory)'
       Contents: |
         **
         !.git/**/*
       TargetFolder: '$(build.artifactstagingdirectory)'
-      
-  # - task: PublishBuildArtifacts@1
-  #   displayName: 'Publish Artifact drop-android'
-  #   inputs:
-  #     PathtoPublish: '$(build.binariesdirectory)/$(BuildConfiguration)'
-  #     ArtifactName: 'drop-android'
 
-  # - task: CopyFiles@2
-  #   displayName: 'Copy 3'
-  #   inputs:
-  #     sourceFolder: '$(system.defaultworkingdirectory)'
-  #     contents: '**/?(*.exe|*.dll|*.pdb)'
-  #     targetFolder: '$(Build.ArtifactStagingDirectory)'
+  - task: CopyFiles@2
+    displayName: 'Copy 3'
+    inputs:
+      sourceFolder: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
+      contents: '**'
+      targetFolder: '$(Build.ArtifactStagingDirectory)'
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: drop'
