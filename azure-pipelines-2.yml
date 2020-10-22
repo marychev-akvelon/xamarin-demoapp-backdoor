@@ -29,7 +29,7 @@ jobs:
     displayName: "build android"
     inputs:
       projectFile: '**/backdoor.Droid.csproj'
-      outputDirectory: ''
+      outputDirectory: '$(varOutputDirectory)'
       configuration: '$(buildConfiguration)'
       msbuildArchitectureOption: x64
       jdkOption: 'JDKVersion'
@@ -66,4 +66,4 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: drop'
     inputs:
-      PathtoPublish: '$(build.artifactstagingdirectory)/$(buildConfiguration)'
+      PathtoPublish: '$(varOutputDirectory)'
