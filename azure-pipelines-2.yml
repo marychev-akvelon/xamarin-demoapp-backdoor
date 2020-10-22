@@ -1,0 +1,89 @@
+trigger:
+- master
+
+jobs:
+ 
+- job: Android
+  displayName: "job android"
+  pool:
+    name: Hosted Windows 2019 with VS2019
+
+  variables:
+    solution: '**/backdoor.sln'
+    buildPlatform: 'x86|x64|ARM'
+    buildConfiguration: 'Release'
+    appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
+
+  steps:
+
+  - task: NuGetToolInstaller@1
+    displayName: 'Install nuget'
+    inputs:
+      versionSpec: '5.3.0'
+
+  - task: NuGetCommand@2
+    inputs:
+      restoreSolution: '$(solution)'
+
+  #   # Try to use this task instead of the MSBuild@1 task
+  #   # Tip: If you are building a solution, we recommend you use the Visual Studio build task instead of the MSBuild task.
+  #   # https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/build/visual-studio-build?view=azure-devops
+  # - task: VSBuild@1
+  #   inputs:
+  #     solution: '$(solution)'
+  #     msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" 
+  #                   /p:AppxPackageDir="$(appxPackageDir)"
+  #                   /p:AppxBundle=Always
+  #                   /p:UapAppxPackageBuildMode=StoreUpload'
+  #     configuration: '$(buildConfiguration)'
+    
+  - task: XamarinAndroid@1
+    displayName: "build android"
+    inputs:
+      projectFile: '**/FingerPaint.csproj'                                
+      outputDirectory: '$(build.ArtifactStagingDirectory)/$(buildConfiguration)'
+      configuration: '$(buildConfiguration)'
+      msbuildArchitectureOption: x64
+      jdkOption: 'JDKVersion'
+
+    # I just check APK
+  - task: AndroidSigning@2
+    displayName: "align and sign"  
+    inputs:
+      apkFiles: '$(build.ArtifactStagingDirectory)/$(buildConfiguration)/*.apk'
+      jarsign: false
+
+  # let's build all the tests so we can run them in AppCenter
+  - task: MSBuild@1
+    displayName: 'Build all Tests-csproj files'
+    inputs:      
+      solution: "**/*.csproj"
+      configuration: '$(buildConfiguration)'
+      msbuildArguments: '/p:OutputPath="$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly"'
+      
+  - task: CopyFiles@2
+    displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+    inputs:
+      SourceFolder: '$(system.defaultworkingdirectory)'
+      Contents: |
+        **
+        !.git/**/*
+      TargetFolder: '$(build.artifactstagingdirectory)'
+      
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact drop-android'
+    inputs:
+      PathtoPublish: '$(build.binariesdirectory)/$(BuildConfiguration)'
+      ArtifactName: 'drop-android'
+
+  - task: CopyFiles@2
+    displayName: 'Copy Files nugets files'
+    inputs:
+      sourceFolder: '$(system.defaultworkingdirectory)'
+      contents: '**/?(*.exe|*.dll|*.pdb)'
+      targetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: drop'
+    inputs:
+      PathtoPublish: '$(build.artifactstagingdirectory)'
