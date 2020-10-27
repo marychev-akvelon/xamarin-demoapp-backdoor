@@ -1,18 +1,17 @@
 trigger:
 - master
-
+  
 jobs:
  
 - job: Android
   displayName: "job android"
   pool:
     name: Hosted Windows 2019 with VS2019
-
   variables:
-    solution: '**/backdoor.sln'
-    buildPlatform: 'x86|x64|ARM'
     buildConfiguration: 'Release'
-    varOutputDirectory: '$(build.binariesdirectory)/$(buildConfiguration)'
+    buildPlatform: 'AnyCPU'
+    major: 10
+    minor: 0
 
   steps:
 
@@ -22,51 +21,47 @@ jobs:
       versionSpec: '5.3.0'
 
   - task: NuGetCommand@2
+    displayName: "nuget restore solution"
     inputs:
-      restoreSolution: '$(solution)'
-    
+      restoreSolution: '**/backdoor.sln'        
+      vstsFeed: 'MasterFeed'
+  
   - task: XamarinAndroid@1
     displayName: "build android"
     inputs:
-      projectFile: '**/backdoor.Droid.csproj'
-      outputDirectory: '$(varOutputDirectory)'
+      projectFile: '**/backdoor.Droid.csproj'                                
+      outputDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)'
       configuration: '$(buildConfiguration)'
       msbuildArchitectureOption: x64
       jdkOption: 'JDKVersion'
-
+      
   # let's build all the tests so we can run them in AppCenter
   - task: MSBuild@1
-    displayName: 'Build all Tests-csproj files'
+    displayName: 'Build all **/*Tests.csproj files'
     inputs:      
       solution: "**/*Tests.csproj"
       configuration: '$(buildConfiguration)'
-      msbuildArguments: '/p:OutputPath="$(varOutputDirectory)/test-assembly"'
-   
-    # I just check APK
+      msbuildArguments: '/p:OutputPath="$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly"'
+
   - task: AndroidSigning@2
     displayName: "align and sign"  
     inputs:
-      apkFiles: '$(varOutputDirectory)/*.apk'
+      # NOTE: Just for check
+      apkFiles: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
       jarsign: false
-
-  # - task: CopyFiles@2
-  #   displayName: 'Copy files'
-  #   inputs:
-  #     SourceFolder: '$(build.sourcesdirectory)'
-  #     Contents: '**/$(BuildConfiguration)/**/?(*.exe|*.dll|*.pdb)'
-  #     TargetFolder: '$(varOutputDirectory)/temp-1'
-
-  # - task: CopyFiles@2
-  #   displayName: 'Copy 3'
-  #   inputs:
-  #     sourceFolder: '$(varOutputDirectory)/test-assembly'
-  #     contents: '**/$(BuildConfiguration)/**/?(*.exe|*.dll|*.pdb)'
-  #     targetFolder: '$(varOutputDirectory)/temp-2'
-
+      # NOTE: FOR YOU
+      # jarsign: true
+      # jarsignerKeystoreFile: 'dvmapp-keystore.keystore'
+      # jarsignerKeystorePassword: '$(keystorePassword)'
+      # jarsignerKeystoreAlias: 'dvmapp-keystore'
+      # jarsignerKeyPassword: '$(keyPassword)'
+      # zipalign: true
+  
   - task: PublishBuildArtifacts@1
-    displayName: 'Publish Artifact: drop'
+    displayName: 'Publish Artifact drop-android'
     inputs:
-      PathtoPublish: '$(varOutputDirectory)'
+      PathtoPublish: '$(build.binariesdirectory)/$(BuildConfiguration)'
+      ArtifactName: 'drop-android'
 
   - task: CopyFiles@2
     displayName: 'copy the tools folder because wild cards seem to fail on the tools'
@@ -75,13 +70,54 @@ jobs:
       SourceFolder: '$(build.sourcesdirectory)/packages'
       TargetFolder: '$(build.sourcesdirectory)/tools'
       flattenFolders: true
-      
+
+  - task: Bash@3
+    displayName: "list tools directory"
+    inputs: 
+      targetType: inline
+      script: |
+        ls -Rhal '$(build.sourcesdirectory)/tools'
+
   - task: AppCenterDistribute@3
+    displayName: 'distribute android to app center'
     inputs:
+      # YOUR NEW serviceConnection
       serverEndpoint: 'serviceConnection-APIToken-User'
-      appSlug: 'v-mimary-microsoft.com/xam-android-backdoor'
-      appFile: '$(varOutputDirectory)/*.apk'
+      appSlug: 'American-Innovations/dvmapp-android'
+      appFile: '$(build.binariesDirectory)/$(buildConfiguration)/*.apk'
       symbolsOption: 'Android'
       releaseNotesOption: 'input'
+      releaseNotesInput: 'These are my release notes'
       destinationType: 'groups'
-      isSilent: true
+
+  # because the windows-latest is using node v12.13.0, cli use 10.x
+  - task: UseNode@1
+    inputs:
+      version: '10.15.1'
+  
+  - task: Bash@3
+    displayName: "display environment variables"
+    inputs:
+      targetType: 'inline'
+      script: "set"
+  
+  - task: AppCenterTest@1
+    displayName: 'Test with Visual Studio App Center'
+    inputs:
+      appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
+      artifactsDirectory: '$(Build.ArtifactStagingDirectory)/AppCenterTest'
+      frameworkOption: 'uitest'
+      uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
+      uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
+      credentialsOption: 'serviceEndpoint'
+      # YOUR NEW serviceConnection
+      serverEndpoint: 'serviceConnection-APIToken-User'
+      appSlug: 'American-Innovations/dvmapp-android'
+      devices: 'American-Innovations/ai-tablets'
+      localeOption: 'en_US'
+      skipWaitingForResults: true
+      showDebugOutput: true
+    condition: succeededOrFailed()
+
+
+# v-mimary-microsoft.com/xam-android-backdoor
