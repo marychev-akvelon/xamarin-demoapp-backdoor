@@ -12,7 +12,7 @@ jobs:
     solution: '**/backdoor.sln'
     buildPlatform: 'x86|x64|ARM'
     buildConfiguration: 'Release'
-    varOutputDirectory: '$(build.ArtifactStagingDirectory)/$(buildConfiguration)'
+    varOutputDirectory: '$(build.binariesdirectory)/$(buildConfiguration)'
 
   steps:
 
@@ -34,13 +34,6 @@ jobs:
       msbuildArchitectureOption: x64
       jdkOption: 'JDKVersion'
 
-    # I just check APK
-  - task: AndroidSigning@2
-    displayName: "align and sign"  
-    inputs:
-      apkFiles: '$(varOutputDirectory)/*.apk'
-      jarsign: false
-
   # let's build all the tests so we can run them in AppCenter
   - task: MSBuild@1
     displayName: 'Build all Tests-csproj files'
@@ -49,12 +42,19 @@ jobs:
       configuration: '$(buildConfiguration)'
       msbuildArguments: '/p:OutputPath="$(varOutputDirectory)/test-assembly"'
    
-  - task: CopyFiles@2
-    displayName: 'Copy files'
+    # I just check APK
+  - task: AndroidSigning@2
+    displayName: "align and sign"  
     inputs:
-      SourceFolder: '$(build.sourcesdirectory)'
-      Contents: '**/$(BuildConfiguration)/**/?(*.exe|*.dll|*.pdb)'
-      TargetFolder: '$(varOutputDirectory)/temp-1'
+      apkFiles: '$(varOutputDirectory)/*.apk'
+      jarsign: false
+
+  # - task: CopyFiles@2
+  #   displayName: 'Copy files'
+  #   inputs:
+  #     SourceFolder: '$(build.sourcesdirectory)'
+  #     Contents: '**/$(BuildConfiguration)/**/?(*.exe|*.dll|*.pdb)'
+  #     TargetFolder: '$(varOutputDirectory)/temp-1'
 
   # - task: CopyFiles@2
   #   displayName: 'Copy 3'
@@ -68,6 +68,14 @@ jobs:
     inputs:
       PathtoPublish: '$(varOutputDirectory)'
 
+  - task: CopyFiles@2
+    displayName: 'copy the tools folder because wild cards seem to fail on the tools'
+    inputs:
+      Contents: '**/Xamarin.UITest.*/**'
+      SourceFolder: '$(build.sourcesdirectory)/packages'
+      TargetFolder: '$(build.sourcesdirectory)/tools'
+      flattenFolders: true
+      
   - task: AppCenterDistribute@3
     inputs:
       serverEndpoint: 'serviceConnection-APIToken-User'
