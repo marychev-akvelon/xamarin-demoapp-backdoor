@@ -46,16 +46,8 @@ jobs:
   - task: AndroidSigning@2
     displayName: "align and sign"  
     inputs:
-      # NOTE: Just for check
       apkFiles: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
       jarsign: false
-      # NOTE: FOR YOU
-      # jarsign: true
-      # jarsignerKeystoreFile: 'dvmapp-keystore.keystore'
-      # jarsignerKeystorePassword: '$(keystorePassword)'
-      # jarsignerKeystoreAlias: 'dvmapp-keystore'
-      # jarsignerKeyPassword: '$(keyPassword)'
-      # zipalign: true
   
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact drop-android'
@@ -81,9 +73,8 @@ jobs:
   - task: AppCenterDistribute@3
     displayName: 'distribute android to app center'
     inputs:
-      # YOUR NEW serviceConnection
-      serverEndpoint: 'serviceConnection-APIToken-User'
-      appSlug: 'American-Innovations/dvmapp-android'
+      serverEndpoint: 'Example User Token'
+      appSlug: 'v-mimary-microsoft.com/xam-backdoor'
       appFile: '$(build.binariesDirectory)/$(buildConfiguration)/*.apk'
       symbolsOption: 'Android'
       releaseNotesOption: 'input'
@@ -105,15 +96,14 @@ jobs:
     displayName: 'Test with Visual Studio App Center'
     inputs:
       appFile: '$(build.binariesdirectory)/$(BuildConfiguration)/*.apk'
-      artifactsDirectory: '$(Build.ArtifactStagingDirectory)/AppCenterTest'
+      artifactsDirectory: '$(build.artifactstagingdirectory)/AppCenterTest'
       frameworkOption: 'uitest'
       uiTestBuildDirectory: '$(build.binariesdirectory)/$(BuildConfiguration)/test-assembly'
       uiTestToolsDirectory: '$(build.sourcesdirectory)/tools'
       credentialsOption: 'serviceEndpoint'
-      # YOUR NEW serviceConnection
-      serverEndpoint: 'serviceConnection-APIToken-User'
-      appSlug: 'American-Innovations/dvmapp-android'
-      devices: 'American-Innovations/ai-tablets'
+      serverEndpoint: 'Example User Token'
+      appSlug: 'v-mimary-microsoft.com/xam-backdoor'
+      devices: 'v-mimary-microsoft.com/my-phone'
       localeOption: 'en_US'
       skipWaitingForResults: true
       showDebugOutput: true
