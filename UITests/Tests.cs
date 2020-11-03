@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using NUnit.Framework;
 using Xamarin.UITest;
 using Xamarin.UITest.Queries;
@@ -42,6 +43,10 @@ namespace backdoor.UITests
             }
 
             Console.WriteLine ("backdoorValue:" + backdoorValue);
+            
+            Console.WriteLine ("START sleep MMC");
+            Thread.Sleep(2000);
+            Console.WriteLine ("FINISH sleep MMC");
 
             app.Screenshot (backdoorValue);
             Assert.IsTrue (backdoorValue.Contains("Executed Backdoor"));
